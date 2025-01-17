@@ -44,14 +44,20 @@ func Bg3binPath(cfg *BaseConfig) string {
 }
 
 func BooKeeperDir(cfg *BaseConfig) string {
-	result := filepath.Join(HomeDir(), ".local", "share", "bookeeper")
-	if !ExistsDir(result) {
-		err := os.MkdirAll(result, 0755)
+	return ensureExistsDir(filepath.Join(HomeDir(), ".local", "share", "bookeeper"))
+}
+
+func ensureExistsDir(path string) string {
+	if !ExistsDir(path) {
+		if PathExists(path) {
+			panic(fmt.Errorf("path %s exists but is not a directory", path))
+		}
+		err := os.MkdirAll(path, 0755)
 		if err != nil {
-			panic(fmt.Errorf("failed to create directory %s: %w", result, err))
+			panic(fmt.Errorf("failed to create directory %s: %w", path, err))
 		}
 	}
-	return result
+	return path
 }
 
 func Bg3SeDllPath(cfg *BaseConfig) string {
