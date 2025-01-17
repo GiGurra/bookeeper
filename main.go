@@ -3,16 +3,13 @@ package main
 import (
 	"github.com/GiGurra/boa/pkg/boa"
 	"github.com/GiGurra/bookeeper/cmd"
+	"github.com/GiGurra/bookeeper/pkg/config"
 	"github.com/spf13/cobra"
 )
 
-type Config struct {
-	SomeParam boa.Required[string] `default:"default" name:"some-param" short-name:"s"`
-}
-
 func main() {
 
-	cfg := Config{}
+	cfg := config.BaseConfig{}
 
 	boa.Wrap{
 		Use:   "bookeeper",
