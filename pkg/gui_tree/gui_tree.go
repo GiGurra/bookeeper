@@ -8,7 +8,11 @@ import (
 )
 
 func Profiles(cfg *config.BaseConfig) treeprint.Tree {
-	profilesNode := treeprint.NewWithRoot("profiles")
+	return ProfilesN(cfg, "profiles")
+}
+
+func ProfilesN(cfg *config.BaseConfig, name string) treeprint.Tree {
+	profilesNode := treeprint.NewWithRoot(name)
 	profiles := config.ListProfiles(cfg)
 	for _, profile := range profiles {
 		AddChild(profilesNode, Profile(profile))

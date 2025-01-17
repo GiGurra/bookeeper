@@ -45,9 +45,9 @@ func StatusCmd() *cobra.Command {
 			bg3CurrentSettings := gui_tree.AddChildStr(rootNode, "current settings")
 			gui_tree.AddChild(bg3CurrentSettings, gui_tree.Profile(config.GetCurrentProfile(cfg)))
 
-			gui_tree.AddChild(rootNode, gui_tree.Profiles(cfg))
+			gui_tree.AddChild(rootNode, gui_tree.ProfilesN(cfg, "available profiles"))
 
-			bg3DownloadedModsNode := rootNode.AddBranch("downloaded/available mods")
+			bg3DownloadedModsNode := rootNode.AddBranch("available mods")
 			for _, mod := range config.ListInstalledMods(cfg) {
 				gui_tree.AddChild(bg3DownloadedModsNode, gui_tree.Mod(mod))
 			}
