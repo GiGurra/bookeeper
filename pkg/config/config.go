@@ -153,3 +153,37 @@ func Bg3ProfileDir(cfg *BaseConfig) string {
 func Bg3ModsettingsFilePath(cfg *BaseConfig) string {
 	return filepath.Join(Bg3ProfileDir(cfg), "modsettings.lsx")
 }
+
+type DownloadedMod struct {
+	Name    string
+	Path    string
+	Version string
+}
+
+func ListInstalledMods(cfg *BaseConfig) []DownloadedMod {
+	entries, err := os.ReadDir(DownloadedModsDir(cfg))
+	if err != nil {
+		panic(fmt.Errorf("failed to read directory %s: %w", DownloadedModsDir(cfg), err))
+	}
+	var mods []DownloadedMod
+	for _, modRootEntry := range entries {
+		if modRootEntry.IsDir() {
+			// list versions of the mod
+			modPath := filepath.Join(DownloadedModsDir(cfg), modRootEntry.Name())
+			modVersions, err := os.ReadDir(modPath)
+			if err != nil {
+				panic(fmt.Errorf("failed to read directory %s: %w", modPath, err))
+			}
+			for _, modVersionEntry := range modVersions {
+				if modVersionEntry.IsDir() {
+					mods = append(mods, DownloadedMod{
+						Name:    modRootEntry.Name(),
+						Path:    filepath.Join(modPath, modVersionEntry.Name()),
+						Version: modVersionEntry.Name(),
+					})
+				}
+			}
+		}
+	}
+	return mods
+}

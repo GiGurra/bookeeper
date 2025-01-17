@@ -63,6 +63,12 @@ func StatusCmd() *cobra.Command {
 			bg3SeNode.AddMetaNode("dll path", bg3SeDllPath)
 			makeNodeChildrenSameKeyLen(bg3SeNode)
 
+			bg3DownloadedModsNode := rootNode.AddBranch("bg3 downloaded mods")
+			installedMods := config.ListInstalledMods(cfg)
+			for _, mod := range installedMods {
+				bg3DownloadedModsNode.AddMetaNode(mod.Name, mod.Version)
+			}
+
 			fmt.Println(rootNode.String())
 		},
 	}.ToCmd()
