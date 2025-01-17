@@ -1,4 +1,4 @@
-package game
+package modsettingslsx
 
 import (
 	"encoding/xml"
@@ -13,6 +13,13 @@ type ModSettingsLSX struct {
 	Region  Region   `xml:"region"`
 }
 
+type Version struct {
+	Major    int `xml:"major,attr"`
+	Minor    int `xml:"minor,attr"`
+	Revision int `xml:"revision,attr"`
+	Build    int `xml:"build,attr"`
+}
+
 type Region struct {
 	ID   string   `xml:"id,attr"`
 	Root RootNode `xml:"node"`
@@ -24,6 +31,22 @@ type RootNode struct {
 	Attributes []Attribute    `xml:"attribute"`
 }
 
+type CategoryNode struct {
+	ID         string      `xml:"id,attr"`
+	Children   []Mod       `xml:"children>node"` // This will capture all child nodes
+	Attributes []Attribute `xml:"attribute"`
+}
+
+type Mod struct {
+	ID         string      `xml:"id,attr"`
+	Attributes []Attribute `xml:"attribute"`
+}
+type Attribute struct {
+	ID    string `xml:"id,attr"`
+	Value string `xml:"value,attr"`
+	Type  string `xml:"type,attr"`
+}
+
 func (m *ModSettingsLSX) ToXML() string {
 
 	bs, err := xml.MarshalIndent(m, "", "  ")
@@ -32,30 +55,6 @@ func (m *ModSettingsLSX) ToXML() string {
 	}
 
 	return xml.Header + makeBg3StyleXml(string(bs))
-}
-
-type Version struct {
-	Major    int `xml:"major,attr"`
-	Minor    int `xml:"minor,attr"`
-	Revision int `xml:"revision,attr"`
-	Build    int `xml:"build,attr"`
-}
-
-type Mod struct {
-	ID         string      `xml:"id,attr"`
-	Attributes []Attribute `xml:"attribute"`
-}
-
-type CategoryNode struct {
-	ID         string      `xml:"id,attr"`
-	Children   []Mod       `xml:"children>node"` // This will capture all child nodes
-	Attributes []Attribute `xml:"attribute"`
-}
-
-type Attribute struct {
-	ID    string `xml:"id,attr"`
-	Value string `xml:"value,attr"`
-	Type  string `xml:"type,attr"`
 }
 
 func (n *RootNode) GetModOrder() []Mod {

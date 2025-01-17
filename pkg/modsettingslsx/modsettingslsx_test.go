@@ -1,4 +1,4 @@
-package game
+package modsettingslsx
 
 import (
 	"encoding/xml"
