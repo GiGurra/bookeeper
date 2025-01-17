@@ -3,6 +3,7 @@ package game
 import (
 	"encoding/xml"
 	"fmt"
+	"regexp"
 	"strings"
 )
 
@@ -119,43 +120,22 @@ func makeBg3StyleXml(xmlData string) string {
 
 	// TODO: Remove if it turns out we don't need this in the BG3 xml
 
-	makeMoreCompact := func(xmlData string) string {
-		// Change to short xml, ugly way. Replace ></KEY> with />
+	endOfLineToRelace := regexp.MustCompile(`></[A-Za-z]+>$`)
+
+	makeBgish := func(xmlData string) string {
 		src := strings.Split(xmlData, "\n")
 		result := make([]string, 0, len(src))
 		for _, line := range src {
-
-			start := strings.Index(line, "></")
-			if start == -1 {
-				result = append(result, line)
-				continue
-			}
-			// find first occurence of > after start
-			end := strings.Index(line[start+1:], ">")
-			if end == -1 {
-				result = append(result, line)
-				continue
-			}
-			// replace with />
-			result = append(result, line[:start]+"/>"+line[start+end+2:])
-		}
-
-		return strings.Join(result, "\n")
-	}
-
-	addSpaceAfterLastAttribute := func(xmlData string) string {
-		src := strings.Split(xmlData, "\n")
-		result := make([]string, 0, len(src))
-		for _, line := range src {
-			if strings.HasSuffix(line, "\"/>") {
-				result = append(result, line[:len(line)-3]+"\" />")
+			match := endOfLineToRelace.FindStringIndex(line)
+			if match != nil {
+				result = append(result, line[:match[0]]+" />")
 			} else {
 				result = append(result, line)
 			}
-
 		}
+
 		return strings.Join(result, "\n")
 	}
 
-	return addSpaceAfterLastAttribute(makeMoreCompact(xmlData))
+	return makeBgish(xmlData)
 }
