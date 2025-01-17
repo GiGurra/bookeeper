@@ -5,7 +5,8 @@ import (
 	"github.com/GiGurra/boa/pkg/boa"
 	"github.com/GiGurra/bookeeper/pkg/config"
 	"github.com/spf13/cobra"
-	"log/slog"
+	"github.com/xlab/treeprint"
+	"strings"
 )
 
 func StatusCmd() *cobra.Command {
@@ -43,15 +44,43 @@ func StatusCmd() *cobra.Command {
 			bg3SeDllPath := config.Bg3SeDllPath(cfg)
 			bg3SeInstalled := config.ExistsFile(bg3SeDllPath)
 
-			fmt.Printf("#########################################################################################################################\n")
-			fmt.Printf("################################################## General Info #########################################################\n")
-			fmt.Printf("            BG3 Path: %s\n", config.Bg3Path(cfg))
-			fmt.Printf("         BG3bin Path: %s\n", config.Bg3binPath(cfg))
-			fmt.Printf("    Bg3UserData Path: %s\n", config.Bg3UserDataDir(cfg))
-			fmt.Printf("     BG3SE installed: %v (%s)\n", bg3SeInstalled, bg3SeDllPath)
-			fmt.Printf("#########################################################################################################################\n")
+			rootNode := treeprint.NewWithRoot("Bookeeper Status")
 
-			slog.Error("Not yet implemented")
+			bg3PathsNode := rootNode.AddBranch("BG3 Paths")
+			bg3PathsNode.AddMetaNode("BG3 Path", config.Bg3Path(cfg))
+			bg3PathsNode.AddMetaNode("BG3bin Path", config.Bg3binPath(cfg))
+			bg3PathsNode.AddMetaNode("Bg3UserData Path", config.Bg3UserDataDir(cfg))
+			makeNodeChildrenSameKeyLen(bg3PathsNode)
+
+			bg3SeNode := rootNode.AddBranch("BG3SE Status")
+			bg3SeNode.AddMetaNode("BG3SE installed", bg3SeInstalled)
+			bg3SeNode.AddMetaNode("BG3SE DLL Path", bg3SeDllPath)
+			makeNodeChildrenSameKeyLen(bg3SeNode)
+
+			fmt.Println(rootNode.String())
 		},
 	}.ToCmd()
+}
+
+func makeNodeChildrenSameKeyLen(node treeprint.Tree) {
+
+	// pass 1, fetch the max key length
+	maxLen := 0
+	node.VisitAll(func(n *treeprint.Node) {
+		if n.Meta != nil {
+			str := fmt.Sprintf("%v", n.Meta)
+			if len(str) > maxLen {
+				maxLen = len(str)
+			}
+		}
+	})
+
+	// pass 2, pad the keys
+	node.VisitAll(func(n *treeprint.Node) {
+		if n.Meta != nil {
+			str := fmt.Sprintf("%v", n.Meta)
+			str = str + strings.Repeat(" ", maxLen-len(str))
+			n.Meta = str
+		}
+	})
 }
