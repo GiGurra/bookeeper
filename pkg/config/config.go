@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/GiGurra/boa/pkg/boa"
 	"os"
@@ -53,6 +54,65 @@ func DownloadedModsDir(cfg *BaseConfig) string {
 
 func ProfilesDir(cfg *BaseConfig) string {
 	return ensureExistsDir(filepath.Join(BooKeeperDir(cfg), "profiles"))
+}
+
+func GetProfile(cfg *BaseConfig, profileName string) Profile {
+	profilePath := filepath.Join(ProfilesDir(cfg), profileName)
+	if !ExistsDir(profilePath) {
+		panic(fmt.Errorf("profile %s does not exist", profileName))
+	}
+	cfgFilePath := filepath.Join(profilePath, "profile.json")
+	if !ExistsFile(cfgFilePath) {
+		panic(fmt.Errorf("profile %s does not have a config file", profileName))
+	}
+	bs, err := os.ReadFile(cfgFilePath)
+	if err != nil {
+		panic(fmt.Errorf("failed to read profile config file %s: %w", cfgFilePath, err))
+	}
+	var profile Profile
+	err = json.Unmarshal(bs, &profile)
+	if err != nil {
+		panic(fmt.Errorf("failed to unmarshal profile config file %s: %w", cfgFilePath, err))
+	}
+	return profile
+}
+
+func SaveProfile(cfg *BaseConfig, profile Profile) {
+	profilePath := filepath.Join(ProfilesDir(cfg), profile.Name)
+	if !ExistsDir(profilePath) {
+		err := os.MkdirAll(profilePath, 0755)
+		if err != nil {
+			panic(fmt.Errorf("failed to create profile directory %s: %w", profilePath, err))
+		}
+	}
+	cfgFilePath := filepath.Join(profilePath, "profile.json")
+	err := os.WriteFile(cfgFilePath, profile.toJson(), 0644)
+	if err != nil {
+		panic(fmt.Errorf("failed to write profile config file %s: %w", cfgFilePath, err))
+	}
+}
+
+func (p *Profile) toJson() []byte {
+	bs, err := json.MarshalIndent(p, "", "  ")
+	if err != nil {
+		panic(fmt.Errorf("failed to marshal profile mod list to json: %w", err))
+	}
+	return bs
+}
+
+func ListProfiles(cfg *BaseConfig) []Profile {
+	entries, err := os.ReadDir(ProfilesDir(cfg))
+	if err != nil {
+		panic(fmt.Errorf("failed to read directory %s: %w", ProfilesDir(cfg), err))
+	}
+	var profiles []Profile
+	for _, entry := range entries {
+		if entry.IsDir() {
+			profile := GetProfile(cfg, entry.Name())
+			profiles = append(profiles, profile)
+		}
+	}
+	return profiles
 }
 
 func ensureExistsDir(path string) string {
@@ -154,18 +214,18 @@ func Bg3ModsettingsFilePath(cfg *BaseConfig) string {
 	return filepath.Join(Bg3ProfileDir(cfg), "modsettings.lsx")
 }
 
-type DownloadedMod struct {
-	Name    string
-	Path    string
-	Version string
+type Mod struct {
+	Name         string `json:"name"`
+	DownloadPath string `json:"download_path"`
+	Version      string `json:"version"`
 }
 
-func ListInstalledMods(cfg *BaseConfig) []DownloadedMod {
+func ListInstalledMods(cfg *BaseConfig) []Mod {
 	entries, err := os.ReadDir(DownloadedModsDir(cfg))
 	if err != nil {
 		panic(fmt.Errorf("failed to read directory %s: %w", DownloadedModsDir(cfg), err))
 	}
-	var mods []DownloadedMod
+	var mods []Mod
 	for _, modRootEntry := range entries {
 		if modRootEntry.IsDir() {
 			// list versions of the mod
@@ -176,14 +236,87 @@ func ListInstalledMods(cfg *BaseConfig) []DownloadedMod {
 			}
 			for _, modVersionEntry := range modVersions {
 				if modVersionEntry.IsDir() {
-					mods = append(mods, DownloadedMod{
-						Name:    modRootEntry.Name(),
-						Path:    filepath.Join(modPath, modVersionEntry.Name()),
-						Version: modVersionEntry.Name(),
+					mods = append(mods, Mod{
+						Name:         modRootEntry.Name(),
+						DownloadPath: filepath.Join(modPath, modVersionEntry.Name()),
+						Version:      modVersionEntry.Name(),
 					})
 				}
 			}
 		}
 	}
 	return mods
+}
+
+type Profile struct {
+	Name string
+	Path string
+	Mods []Mod
+}
+
+func BookeperConfigFilePath(cfg *BaseConfig) string {
+	return filepath.Join(BooKeeperDir(cfg), "config.json")
+}
+
+type Config struct {
+	CurrentProfile string `json:"current_profile"`
+}
+
+func (c *Config) toJson() []byte {
+	bs, err := json.MarshalIndent(c, "", "  ")
+	if err != nil {
+		panic(fmt.Errorf("failed to marshal config to json: %w", err))
+	}
+	return bs
+}
+
+func GetConfig(cfg *BaseConfig) Config {
+	// <bookeeper_config_file>
+	configFilePath := BookeperConfigFilePath(cfg)
+	if ExistsFile(configFilePath) {
+		config := Config{}
+		bs, err := os.ReadFile(configFilePath)
+		if err != nil {
+			panic(fmt.Errorf("failed to read config file %s: %w", configFilePath, err))
+		}
+		err = json.Unmarshal(bs, &config)
+		if err != nil {
+			panic(fmt.Errorf("failed to unmarshal config file %s: %w", configFilePath, err))
+		}
+		return config
+	} else {
+		// create and save new config
+		fmt.Printf("Creating new config file at %s\n", configFilePath)
+		config := Config{}
+		SaveConfig(cfg, config)
+		return config
+	}
+}
+
+func SaveConfig(cfg *BaseConfig, config Config) {
+	// <bookeeper_config_file>
+	err := os.WriteFile(BookeperConfigFilePath(cfg), config.toJson(), 0644)
+	if err != nil {
+		panic(fmt.Errorf("failed to write config file %s: %w", BookeperConfigFilePath(cfg), err))
+	}
+}
+
+func GetCurrentProfile(cfg *BaseConfig) Profile {
+	name := GetConfig(cfg).CurrentProfile
+	if name == "" {
+		name = "default"
+		fmt.Printf("No current profile set, creating new default profile\n")
+		profile := Profile{
+			Name: name,
+			Path: filepath.Join(ProfilesDir(cfg), name),
+			Mods: []Mod{},
+		}
+		SaveProfile(cfg, profile)
+		currentConfig := GetConfig(cfg)
+		currentConfig.CurrentProfile = name
+		SaveConfig(cfg, currentConfig)
+		return profile
+	} else {
+		return GetProfile(cfg, name)
+	}
 }

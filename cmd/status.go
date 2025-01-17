@@ -54,8 +54,8 @@ func StatusCmd() *cobra.Command {
 
 			bg3PathsNode := rootNode.AddBranch("bg3 paths")
 			bg3PathsNode.AddMetaNode("install path", config.Bg3Path(cfg))
-			bg3PathsNode.AddMetaNode("bin Path", config.Bg3binPath(cfg))
-			bg3PathsNode.AddMetaNode("userdata Path", config.Bg3UserDataDir(cfg))
+			bg3PathsNode.AddMetaNode("bin DownloadPath", config.Bg3binPath(cfg))
+			bg3PathsNode.AddMetaNode("userdata DownloadPath", config.Bg3UserDataDir(cfg))
 			makeNodeChildrenSameKeyLen(bg3PathsNode)
 
 			bg3SeNode := rootNode.AddBranch("bg3se status")
@@ -63,10 +63,18 @@ func StatusCmd() *cobra.Command {
 			bg3SeNode.AddMetaNode("dll path", bg3SeDllPath)
 			makeNodeChildrenSameKeyLen(bg3SeNode)
 
+			bg3CurrentSettings := rootNode.AddBranch("bg3 current settings")
+			currentProfile := config.GetCurrentProfile(cfg)
+			currentProfileNode := bg3CurrentSettings.AddMetaNode("current profile", currentProfile.Name)
+			modsNode := currentProfileNode.AddNode("mods")
+			for _, mod := range currentProfile.Mods {
+				modsNode.AddMetaNode(fmt.Sprintf("%s@%s", mod.Name, mod.Version), mod.DownloadPath)
+			}
+
 			bg3DownloadedModsNode := rootNode.AddBranch("bg3 downloaded mods")
 			installedMods := config.ListInstalledMods(cfg)
 			for _, mod := range installedMods {
-				bg3DownloadedModsNode.AddMetaNode(mod.Name, mod.Version)
+				bg3DownloadedModsNode.AddMetaNode(fmt.Sprintf("%s@%s", mod.Name, mod.Version), mod.DownloadPath)
 			}
 
 			fmt.Println(rootNode.String())
