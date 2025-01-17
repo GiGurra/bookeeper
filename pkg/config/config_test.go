@@ -1,7 +1,9 @@
 package config
 
 import (
+	"fmt"
 	"github.com/GiGurra/boa/pkg/boa"
+	"github.com/google/go-cmp/cmp"
 	"log/slog"
 	"os"
 	"testing"
@@ -42,5 +44,26 @@ func TestBg3Path(t *testing.T) {
 
 	if isDir(Bg3Path(cfg)) {
 		slog.Info("Bg3Path() returned a directory")
+	} else {
+		t.Fatalf("Bg3Path() did not return a directory")
 	}
+}
+
+func TestUserDataDir(t *testing.T) {
+	cfg := validateConfig(&BaseConfig{})
+	expectedPrefix := HomeDir() + "/.local/share/Steam/userdata/"
+	result := UserDataDir(cfg)
+	if len(result) < len(expectedPrefix) {
+		t.Fatalf("UserDataDir() returned unexpected value")
+	}
+	resultPrefix := result[:len(expectedPrefix)]
+	if diff := cmp.Diff(resultPrefix, expectedPrefix); diff != "" {
+		t.Fatalf("UserDataDir() returned unexpected value, diff: %s", diff)
+	}
+
+	if !isDir(result) {
+		t.Fatalf("UserDataDir() did not return a directory")
+	}
+
+	slog.Info(fmt.Sprintf("UserDataDir(): %s", result))
 }
