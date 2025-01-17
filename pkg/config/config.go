@@ -43,12 +43,16 @@ func Bg3binPath(cfg *BaseConfig) string {
 	return filepath.Join(Bg3Path(cfg), "bin")
 }
 
-func pathExists(path string) bool {
+func Bg3SeDllPath(cfg *BaseConfig) string {
+	return filepath.Join(Bg3binPath(cfg), "/DWrite.dll")
+}
+
+func PathExists(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
 }
 
-func isDir(path string) bool {
+func ExistsDir(path string) bool {
 	info, err := os.Stat(path)
 	if err != nil {
 		return false
@@ -56,7 +60,7 @@ func isDir(path string) bool {
 	return info.IsDir()
 }
 
-func isFile(path string) bool {
+func ExistsFile(path string) bool {
 	info, err := os.Stat(path)
 	if err != nil {
 		return false

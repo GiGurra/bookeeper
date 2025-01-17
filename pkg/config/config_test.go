@@ -43,7 +43,7 @@ func TestBg3Path(t *testing.T) {
 		t.Fatalf("Bg3Path() returned unexpected value")
 	}
 
-	if isDir(Bg3Path(cfg)) {
+	if ExistsDir(Bg3Path(cfg)) {
 		slog.Info("Bg3Path() returned a directory")
 	} else {
 		t.Fatalf("Bg3Path() did not return a directory")
@@ -56,7 +56,7 @@ func TestBg3binPath(t *testing.T) {
 
 	slog.Info(fmt.Sprintf("Bg3binPath(): %s", result))
 
-	if !isDir(result) {
+	if !ExistsDir(result) {
 		t.Fatalf("Bg3binPath() did not return a directory")
 	}
 }
@@ -73,7 +73,7 @@ func TestUserDataDir(t *testing.T) {
 		t.Fatalf("UserDataDir() returned unexpected value, diff: %s", diff)
 	}
 
-	if !isDir(result) {
+	if !ExistsDir(result) {
 		t.Fatalf("UserDataDir() did not return a directory")
 	}
 
@@ -86,7 +86,7 @@ func TestBg3SaveDir(t *testing.T) {
 
 	slog.Info(fmt.Sprintf("Bg3SaveDir(): %s", result))
 
-	if !isDir(result) {
+	if !ExistsDir(result) {
 		t.Fatalf("Bg3SaveDir() did not return a directory")
 	}
 }
@@ -97,13 +97,13 @@ func TestBg3ProfileDir(t *testing.T) {
 
 	slog.Info(fmt.Sprintf("Bg3ProfileDir(): %s", result))
 
-	if !isDir(result) {
+	if !ExistsDir(result) {
 		t.Fatalf("Bg3ProfileDir() did not return a directory")
 	}
 
 	// should be a modsettings.lsx file in the profile dir
 	modSettingsPath := filepath.Join(result, "modsettings.lsx")
-	if !isFile(modSettingsPath) {
+	if !ExistsFile(modSettingsPath) {
 		t.Fatalf("Bg3ProfileDir() did not return a directory with a modsettings.lsx file")
 	}
 }
@@ -114,7 +114,7 @@ func TestBg3ModsettingsFilePath(t *testing.T) {
 
 	slog.Info(fmt.Sprintf("Bg3ModsettingsFilePath(): %s", result))
 
-	if !isFile(result) {
+	if !ExistsFile(result) {
 		t.Fatalf("Bg3ModsettingsFilePath() did not return a file")
 	}
 }
