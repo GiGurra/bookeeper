@@ -60,6 +60,8 @@ func isFile(path string) bool {
 	return !info.IsDir()
 }
 
+// UserDataDir returns the path to the user data directory for the steam user.
+// This is typically ~/.local/share/Steam/userdata/<steam-user-id>.
 func UserDataDir(cfg *BaseConfig) string {
 	result := cfg.UserDataPath.Value()
 	result = strings.ReplaceAll(result, "${Home}", HomeDir())
@@ -80,7 +82,7 @@ func UserDataDir(cfg *BaseConfig) string {
 		if err != nil {
 			panic(fmt.Errorf("failed to read directory %s: %w", currentPath, err))
 		}
-		dirs := []string{}
+		var dirs []string
 		for _, entry := range entries {
 			if entry.IsDir() {
 				dirs = append(dirs, entry.Name())
@@ -101,10 +103,16 @@ func UserDataDir(cfg *BaseConfig) string {
 	return result
 }
 
+// Bg3UserDataDir returns the path to the user data directory for the steam user for BG3.
+// This is typically ~/.local/share/Steam/userdata/<steam-user-id>/1086940.
 func Bg3UserDataDir(cfg *BaseConfig) string {
 	return filepath.Join(UserDataDir(cfg), SteamBg3AppID)
 }
 
-func Bg3SaveRoot(cfg *BaseConfig) string {
-	return filepath.Join(Bg3UserDataDir(cfg), "Remote")
+func Bg3SaveDir(cfg *BaseConfig) string {
+	return filepath.Join(Bg3UserDataDir(cfg), "remote", "_SAVE_Public", "Savegames", "Story")
+}
+
+func Bg3ProfileDir(cfg *BaseConfig) string {
+	return filepath.Join(Bg3UserDataDir(cfg), "remote", "_PROFILE_Public")
 }

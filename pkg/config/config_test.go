@@ -67,3 +67,15 @@ func TestUserDataDir(t *testing.T) {
 
 	slog.Info(fmt.Sprintf("UserDataDir(): %s", result))
 }
+
+func TestBg3SaveDir(t *testing.T) {
+	cfg := validateConfig(&BaseConfig{})
+	result := Bg3SaveDir(cfg)
+
+	slog.Info(fmt.Sprintf("Bg3SaveDir(): %s", result))
+
+	if !isDir(result) {
+		t.Fatalf("Bg3SaveDir() did not return a directory")
+	}
+
+}
