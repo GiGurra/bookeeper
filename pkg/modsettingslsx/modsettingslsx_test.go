@@ -10,25 +10,25 @@ import (
 )
 
 func TestNode_GetMods(t *testing.T) {
-	var modSettingsLSX ModSettingsLSX
+	var modSettingsLSX XmlRoot
 	err := xml.Unmarshal([]byte(srcXmlData), &modSettingsLSX)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Access ModOrder modules
-	modOrder := modSettingsLSX.Region.Root.GetModOrder()
+	modOrder := modSettingsLSX.Region.Root.GetXmlModOrder()
 	for _, module := range modOrder {
-		uuid := module.GetAttributeValue("UUID")
+		uuid := module.GetXmlAttributeValue("UUID")
 		fmt.Printf("Module UUID: %s\n", uuid)
 	}
 
 	// Access Mods
-	mods := modSettingsLSX.Region.Root.GetMods()
+	mods := modSettingsLSX.Region.Root.GetXmlMods()
 	for _, mod := range mods {
-		folder := mod.GetAttributeValue("Folder")
-		name := mod.GetAttributeValue("Name")
-		uuid := mod.GetAttributeValue("UUID")
+		folder := mod.GetXmlAttributeValue("Folder")
+		name := mod.GetXmlAttributeValue("Name")
+		uuid := mod.GetXmlAttributeValue("UUID")
 		fmt.Printf("Mod: %s (%s) - UUID: %s\n", name, folder, uuid)
 	}
 

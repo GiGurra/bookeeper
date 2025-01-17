@@ -7,48 +7,48 @@ import (
 	"strings"
 )
 
-type ModSettingsLSX struct {
-	XMLName xml.Name `xml:"save"`
-	Version Version  `xml:"version"`
-	Region  Region   `xml:"region"`
+type XmlRoot struct {
+	XMLName xml.Name   `xml:"save"`
+	Version XmlVersion `xml:"version"`
+	Region  XmlRegion  `xml:"region"`
 }
 
-type Version struct {
+type XmlVersion struct {
 	Major    int `xml:"major,attr"`
 	Minor    int `xml:"minor,attr"`
 	Revision int `xml:"revision,attr"`
 	Build    int `xml:"build,attr"`
 }
 
-type Region struct {
-	ID   string   `xml:"id,attr"`
-	Root RootNode `xml:"node"`
+type XmlRegion struct {
+	ID   string        `xml:"id,attr"`
+	Root XmlCategories `xml:"node"`
 }
 
-type RootNode struct {
+type XmlCategories struct {
 	ID         string         `xml:"id,attr"`
-	Children   []CategoryNode `xml:"children>node"` // This will capture all child nodes
-	Attributes []Attribute    `xml:"attribute"`
+	Children   []XmlCategory  `xml:"children>node"` // This will capture all child nodes
+	Attributes []XmlAttribute `xml:"attribute"`
 }
 
-type CategoryNode struct {
-	ID         string      `xml:"id,attr"`
-	Children   []Mod       `xml:"children>node"` // This will capture all child nodes
-	Attributes []Attribute `xml:"attribute"`
+type XmlCategory struct {
+	ID         string         `xml:"id,attr"`
+	Children   []XmlMod       `xml:"children>node"` // This will capture all child nodes
+	Attributes []XmlAttribute `xml:"attribute"`
 }
 
-type Mod struct {
-	ID         string      `xml:"id,attr"`
-	Attributes []Attribute `xml:"attribute"`
+type XmlMod struct {
+	ID         string         `xml:"id,attr"`
+	Attributes []XmlAttribute `xml:"attribute"`
 }
 
-type Attribute struct {
+type XmlAttribute struct {
 	ID    string `xml:"id,attr"`
 	Value string `xml:"value,attr"`
 	Type  string `xml:"type,attr"`
 }
 
-func (m *ModSettingsLSX) ToXML() string {
+func (m *XmlRoot) ToXML() string {
 
 	bs, err := xml.MarshalIndent(m, "", "  ")
 	if err != nil {
@@ -58,7 +58,7 @@ func (m *ModSettingsLSX) ToXML() string {
 	return xml.Header + makeBg3StyleXml(string(bs))
 }
 
-func (n *RootNode) GetModOrder() []Mod {
+func (n *XmlCategories) GetXmlModOrder() []XmlMod {
 	for _, child := range n.Children {
 		if child.ID == "ModOrder" {
 			return child.Children
@@ -67,7 +67,7 @@ func (n *RootNode) GetModOrder() []Mod {
 	return nil
 }
 
-func (n *RootNode) GetMods() []Mod {
+func (n *XmlCategories) GetXmlMods() []XmlMod {
 	for _, child := range n.Children {
 		if child.ID == "Mods" {
 			return child.Children
@@ -76,7 +76,7 @@ func (n *RootNode) GetMods() []Mod {
 	return nil
 }
 
-func (n *Mod) GetAttributeValue(id string) string {
+func (n *XmlMod) GetXmlAttributeValue(id string) string {
 	for _, attr := range n.Attributes {
 		if attr.ID == id {
 			return attr.Value
