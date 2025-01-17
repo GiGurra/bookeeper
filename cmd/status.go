@@ -7,8 +7,6 @@ import (
 )
 
 func StatusCmd() *cobra.Command {
-	slog.Error("StatusCmd: Not yet implemented")
-
 	// General:
 	//  * bg3se status: installed | not installed
 	//  * profile: default | custom1 | custom2...
