@@ -7,7 +7,7 @@ import (
 )
 
 type BaseConfig struct {
-	SteamPath boa.Required[string] `default:"${HOME}/.local/share/steam" name:"steam-path" short-name:"s"`
+	SteamPath boa.Required[string] `default:"${HOME}/.local/share/Steam" name:"steam-path" short-name:"s"`
 }
 
 func HomeDir() string {
@@ -25,4 +25,29 @@ func SteamPath(cfg *BaseConfig) string {
 	}
 
 	return strings.ReplaceAll(cfg.SteamPath.Value(), "${HOME}", HomeDir())
+}
+
+func Bg3Path(cfg *BaseConfig) string {
+	return SteamPath(cfg) + "/steamapps/common/Baldurs Gate 3"
+}
+
+func pathExists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
+}
+
+func isDir(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return info.IsDir()
+}
+
+func isFile(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return !info.IsDir()
 }
