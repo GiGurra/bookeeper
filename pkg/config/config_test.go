@@ -118,3 +118,27 @@ func TestBg3ModsettingsFilePath(t *testing.T) {
 		t.Fatalf("Bg3ModsettingsFilePath() did not return a file")
 	}
 }
+
+func TestBg3SeDllPath(t *testing.T) {
+	cfg := validateConfig(&BaseConfig{})
+	result := Bg3SeDllPath(cfg)
+
+	slog.Info(fmt.Sprintf("Bg3SeDllPath(): %s", result))
+
+	// should be BG3Dir/bin
+	expected := filepath.Join(Bg3binPath(cfg), "DWrite.dll")
+	if result != expected {
+		t.Fatalf("Bg3SeDllPath() returned unexpected value")
+	}
+}
+
+func TestBooKeeperCfgDir(t *testing.T) {
+	cfg := validateConfig(&BaseConfig{})
+	result := BooKeeperCfgDir(cfg)
+
+	slog.Info(fmt.Sprintf("BooKeeperCfgDir(): %s", result))
+
+	if !ExistsDir(result) {
+		t.Fatalf("BooKeeperCfgDir() did not return a directory")
+	}
+}
