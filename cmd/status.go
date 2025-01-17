@@ -65,7 +65,7 @@ func StatusCmd() *cobra.Command {
 
 			bg3CurrentSettings := rootNode.AddBranch("bg3 current settings")
 			currentProfile := config.GetCurrentProfile(cfg)
-			currentProfileNode := bg3CurrentSettings.AddMetaNode("current profile", currentProfile.Name)
+			currentProfileNode := bg3CurrentSettings.AddNode(currentProfile.Name)
 			modsNode := currentProfileNode.AddNode("mods")
 			for _, mod := range currentProfile.Mods {
 				modsNode.AddMetaNode(fmt.Sprintf("%s@%s", mod.Name, mod.Version), mod.DownloadPath)
