@@ -48,6 +48,8 @@ func StatusCmd() *cobra.Command {
 
 			bookeeperPathsNode := rootNode.AddBranch("bookeeper paths")
 			bookeeperPathsNode.AddMetaNode("bookeeper path", config.BooKeeperDir(cfg))
+			bookeeperPathsNode.AddMetaNode("downloaded mods path", config.DownloadedModsDir(cfg))
+			bookeeperPathsNode.AddMetaNode("profiles path", config.ProfilesDir(cfg))
 			makeNodeChildrenSameKeyLen(bookeeperPathsNode)
 
 			bg3PathsNode := rootNode.AddBranch("bg3 paths")

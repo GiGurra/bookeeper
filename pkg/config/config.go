@@ -47,6 +47,14 @@ func BooKeeperDir(cfg *BaseConfig) string {
 	return ensureExistsDir(filepath.Join(HomeDir(), ".local", "share", "bookeeper"))
 }
 
+func DownloadedModsDir(cfg *BaseConfig) string {
+	return ensureExistsDir(filepath.Join(BooKeeperDir(cfg), "downloaded_mods"))
+}
+
+func ProfilesDir(cfg *BaseConfig) string {
+	return ensureExistsDir(filepath.Join(BooKeeperDir(cfg), "profiles"))
+}
+
 func ensureExistsDir(path string) string {
 	if !ExistsDir(path) {
 		if PathExists(path) {
