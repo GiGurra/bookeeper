@@ -41,6 +41,7 @@ type Mod struct {
 	ID         string      `xml:"id,attr"`
 	Attributes []Attribute `xml:"attribute"`
 }
+
 type Attribute struct {
 	ID    string `xml:"id,attr"`
 	Value string `xml:"value,attr"`
