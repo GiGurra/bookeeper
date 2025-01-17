@@ -116,3 +116,7 @@ func Bg3SaveDir(cfg *BaseConfig) string {
 func Bg3ProfileDir(cfg *BaseConfig) string {
 	return filepath.Join(Bg3UserDataDir(cfg), "remote", "_PROFILE_Public")
 }
+
+func Bg3ModsettingsFilePath(cfg *BaseConfig) string {
+	return filepath.Join(Bg3ProfileDir(cfg), "modsettings.lsx")
+}

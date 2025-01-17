@@ -6,6 +6,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -77,5 +78,32 @@ func TestBg3SaveDir(t *testing.T) {
 	if !isDir(result) {
 		t.Fatalf("Bg3SaveDir() did not return a directory")
 	}
+}
 
+func TestBg3ProfileDir(t *testing.T) {
+	cfg := validateConfig(&BaseConfig{})
+	result := Bg3ProfileDir(cfg)
+
+	slog.Info(fmt.Sprintf("Bg3ProfileDir(): %s", result))
+
+	if !isDir(result) {
+		t.Fatalf("Bg3ProfileDir() did not return a directory")
+	}
+
+	// should be a modsettings.lsx file in the profile dir
+	modSettingsPath := filepath.Join(result, "modsettings.lsx")
+	if !isFile(modSettingsPath) {
+		t.Fatalf("Bg3ProfileDir() did not return a directory with a modsettings.lsx file")
+	}
+}
+
+func TestBg3ModsettingsFilePath(t *testing.T) {
+	cfg := validateConfig(&BaseConfig{})
+	result := Bg3ModsettingsFilePath(cfg)
+
+	slog.Info(fmt.Sprintf("Bg3ModsettingsFilePath(): %s", result))
+
+	if !isFile(result) {
+		t.Fatalf("Bg3ModsettingsFilePath() did not return a file")
+	}
 }
