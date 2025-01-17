@@ -71,7 +71,17 @@ func StatusCmd() *cobra.Command {
 				modsNode.AddMetaBranch(fmt.Sprintf("%s@%s", mod.Name, mod.Version), mod.DownloadPath)
 			}
 
-			bg3DownloadedModsNode := rootNode.AddBranch("downloaded mods")
+			profilesNode := rootNode.AddBranch("profiles")
+			profiles := config.ListProfiles(cfg)
+			for _, profile := range profiles {
+				profileNode := profilesNode.AddBranch(profile.Name)
+				modsNode := profileNode.AddBranch("mods")
+				for _, mod := range profile.Mods {
+					modsNode.AddMetaBranch(fmt.Sprintf("%s@%s", mod.Name, mod.Version), mod.DownloadPath)
+				}
+			}
+
+			bg3DownloadedModsNode := rootNode.AddBranch("downloaded/available mods")
 			installedMods := config.ListInstalledMods(cfg)
 			for _, mod := range installedMods {
 				bg3DownloadedModsNode.AddMetaNode(fmt.Sprintf("%s@%s", mod.Name, mod.Version), mod.DownloadPath)
