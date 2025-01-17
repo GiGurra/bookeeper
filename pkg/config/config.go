@@ -43,7 +43,7 @@ func Bg3binPath(cfg *BaseConfig) string {
 	return filepath.Join(Bg3Path(cfg), "bin")
 }
 
-func BooKeeperCfgDir(cfg *BaseConfig) string {
+func BooKeeperDir(cfg *BaseConfig) string {
 	result := filepath.Join(HomeDir(), ".local", "share", "bookeeper")
 	if !ExistsDir(result) {
 		err := os.MkdirAll(result, 0755)

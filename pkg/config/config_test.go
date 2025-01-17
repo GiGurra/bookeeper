@@ -134,11 +134,11 @@ func TestBg3SeDllPath(t *testing.T) {
 
 func TestBooKeeperCfgDir(t *testing.T) {
 	cfg := validateConfig(&BaseConfig{})
-	result := BooKeeperCfgDir(cfg)
+	result := BooKeeperDir(cfg)
 
-	slog.Info(fmt.Sprintf("BooKeeperCfgDir(): %s", result))
+	slog.Info(fmt.Sprintf("BooKeeperDir(): %s", result))
 
 	if !ExistsDir(result) {
-		t.Fatalf("BooKeeperCfgDir() did not return a directory")
+		t.Fatalf("BooKeeperDir() did not return a directory")
 	}
 }

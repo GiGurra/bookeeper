@@ -44,17 +44,21 @@ func StatusCmd() *cobra.Command {
 			bg3SeDllPath := config.Bg3SeDllPath(cfg)
 			bg3SeInstalled := config.ExistsFile(bg3SeDllPath)
 
-			rootNode := treeprint.NewWithRoot("Bookeeper Status")
+			rootNode := treeprint.New() // NewWithRoot("Bookeeper Status")
 
-			bg3PathsNode := rootNode.AddBranch("BG3 Paths")
-			bg3PathsNode.AddMetaNode("BG3 Path", config.Bg3Path(cfg))
-			bg3PathsNode.AddMetaNode("BG3bin Path", config.Bg3binPath(cfg))
-			bg3PathsNode.AddMetaNode("Bg3UserData Path", config.Bg3UserDataDir(cfg))
+			bookeeperPathsNode := rootNode.AddBranch("bookeeper paths")
+			bookeeperPathsNode.AddMetaNode("bookeeper path", config.BooKeeperDir(cfg))
+			makeNodeChildrenSameKeyLen(bookeeperPathsNode)
+
+			bg3PathsNode := rootNode.AddBranch("bg3 paths")
+			bg3PathsNode.AddMetaNode("install path", config.Bg3Path(cfg))
+			bg3PathsNode.AddMetaNode("bin Path", config.Bg3binPath(cfg))
+			bg3PathsNode.AddMetaNode("userdata Path", config.Bg3UserDataDir(cfg))
 			makeNodeChildrenSameKeyLen(bg3PathsNode)
 
-			bg3SeNode := rootNode.AddBranch("BG3SE Status")
-			bg3SeNode.AddMetaNode("BG3SE installed", bg3SeInstalled)
-			bg3SeNode.AddMetaNode("BG3SE DLL Path", bg3SeDllPath)
+			bg3SeNode := rootNode.AddBranch("bg3se status")
+			bg3SeNode.AddMetaNode("installed", bg3SeInstalled)
+			bg3SeNode.AddMetaNode("dll path", bg3SeDllPath)
 			makeNodeChildrenSameKeyLen(bg3SeNode)
 
 			fmt.Println(rootNode.String())
