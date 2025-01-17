@@ -50,6 +50,17 @@ func TestBg3Path(t *testing.T) {
 	}
 }
 
+func TestBg3binPath(t *testing.T) {
+	cfg := validateConfig(&BaseConfig{})
+	result := Bg3binPath(cfg)
+
+	slog.Info(fmt.Sprintf("Bg3binPath(): %s", result))
+
+	if !isDir(result) {
+		t.Fatalf("Bg3binPath() did not return a directory")
+	}
+}
+
 func TestUserDataDir(t *testing.T) {
 	cfg := validateConfig(&BaseConfig{})
 	expectedPrefix := HomeDir() + "/.local/share/Steam/userdata/"

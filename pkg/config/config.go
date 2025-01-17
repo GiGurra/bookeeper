@@ -39,6 +39,10 @@ func Bg3Path(cfg *BaseConfig) string {
 	return filepath.Join(SteamPath(cfg), "steamapps", "common", "Baldurs Gate 3")
 }
 
+func Bg3binPath(cfg *BaseConfig) string {
+	return filepath.Join(Bg3Path(cfg), "bin")
+}
+
 func pathExists(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
