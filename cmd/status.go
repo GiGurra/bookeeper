@@ -19,27 +19,6 @@ func StatusCmd() *cobra.Command {
 		Params:      cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
 		Run: func(cmd *cobra.Command, args []string) {
-			// General:
-			//  * bg3se status: installed | not installed
-			//  * profile: default | custom1 | custom2...
-			//
-			// Active mods (profile: default):
-			// -----------------------------
-			// | Mod Name | Version | Status |
-			// etc
-			// ------------------------------
-
-			// Inactive mods:
-			// -----------------------------
-			// | Mod Name | Version | Status |
-			// etc
-			// ------------------------------
-
-			// Profiles:
-			// -----------------------------
-			// | Profile Name | Mods |
-			// etc
-			// ------------------------------
 
 			bg3SeDllPath := config.Bg3SeDllPath(cfg)
 			bg3SeInstalled := config.ExistsFile(bg3SeDllPath)
