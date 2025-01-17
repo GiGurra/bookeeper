@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"github.com/GiGurra/boa/pkg/boa"
 	"github.com/GiGurra/bookeeper/pkg/config"
-	"github.com/GiGurra/bookeeper/pkg/gui"
+	"github.com/GiGurra/bookeeper/pkg/gui_tree"
 	"github.com/spf13/cobra"
 	"github.com/xlab/treeprint"
-	"strings"
 )
 
 func StatusCmd() *cobra.Command {
@@ -26,58 +25,34 @@ func StatusCmd() *cobra.Command {
 
 			rootNode := treeprint.New() // NewWithRoot("Bookeeper Status")
 
-			bookeeperPathsNode := rootNode.AddBranch("bookeeper paths")
+			bookeeperPathsNode := gui_tree.AddChildStr(rootNode, "bookeeper paths")
 			bookeeperPathsNode.AddMetaNode("bookeeper path", config.BooKeeperDir(cfg))
 			bookeeperPathsNode.AddMetaNode("downloaded mods path", config.DownloadedModsDir(cfg))
 			bookeeperPathsNode.AddMetaNode("profiles path", config.ProfilesDir(cfg))
-			makeNodeChildrenSameKeyLen(bookeeperPathsNode)
+			gui_tree.MakeChildrenSameKeyLen(bookeeperPathsNode)
 
-			bg3PathsNode := rootNode.AddBranch("bg3")
-			bg3PathsNode.AddMetaNode("install path", config.Bg3Path(cfg))
-			bg3PathsNode.AddMetaNode("bin DownloadPath", config.Bg3binPath(cfg))
-			bg3PathsNode.AddMetaNode("userdata DownloadPath", config.Bg3UserDataDir(cfg))
-			makeNodeChildrenSameKeyLen(bg3PathsNode)
+			bg3PathsNode := gui_tree.AddChildStr(rootNode, "bg3")
+			gui_tree.AddKV(bg3PathsNode, "install path", config.Bg3Path(cfg))
+			gui_tree.AddKV(bg3PathsNode, "bin path", config.Bg3binPath(cfg))
+			gui_tree.AddKV(bg3PathsNode, "userdata path", config.Bg3UserDataDir(cfg))
+			gui_tree.MakeChildrenSameKeyLen(bg3PathsNode)
 
-			bg3SeNode := rootNode.AddBranch("bg3se")
-			bg3SeNode.AddMetaNode("installed", bg3SeInstalled)
-			bg3SeNode.AddMetaNode("dll path", bg3SeDllPath)
-			makeNodeChildrenSameKeyLen(bg3SeNode)
+			bg3SeNode := gui_tree.AddChildStr(rootNode, "bg3se")
+			gui_tree.AddKV(bg3SeNode, "installed", bg3SeInstalled)
+			gui_tree.AddKV(bg3SeNode, "dll path", bg3SeDllPath)
+			gui_tree.MakeChildrenSameKeyLen(bg3SeNode)
 
-			bg3CurrentSettings := rootNode.AddBranch("current settings")
-			bg3CurrentSettings.AddBranch(gui.Profile(config.GetCurrentProfile(cfg)))
+			bg3CurrentSettings := gui_tree.AddChildStr(rootNode, "current settings")
+			gui_tree.AddChild(bg3CurrentSettings, gui_tree.Profile(config.GetCurrentProfile(cfg)))
 
-			rootNode.AddBranch(gui.Profiles(cfg))
+			gui_tree.AddChild(rootNode, gui_tree.Profiles(cfg))
 
 			bg3DownloadedModsNode := rootNode.AddBranch("downloaded/available mods")
-			installedMods := config.ListInstalledMods(cfg)
-			for _, mod := range installedMods {
-				bg3DownloadedModsNode.AddMetaNode(fmt.Sprintf("%s@%s", mod.Name, mod.Version), mod.DownloadPath)
+			for _, mod := range config.ListInstalledMods(cfg) {
+				gui_tree.AddChild(bg3DownloadedModsNode, gui_tree.Mod(mod))
 			}
 
 			fmt.Println(rootNode.String())
 		},
 	}.ToCmd()
-}
-
-func makeNodeChildrenSameKeyLen(node treeprint.Tree) {
-
-	// pass 1, fetch the max key length
-	maxLen := 0
-	node.VisitAll(func(n *treeprint.Node) {
-		if n.Meta != nil {
-			str := fmt.Sprintf("%v", n.Meta)
-			if len(str) > maxLen {
-				maxLen = len(str)
-			}
-		}
-	})
-
-	// pass 2, pad the keys
-	node.VisitAll(func(n *treeprint.Node) {
-		if n.Meta != nil {
-			str := fmt.Sprintf("%v", n.Meta)
-			str = str + strings.Repeat(" ", maxLen-len(str))
-			n.Meta = str
-		}
-	})
 }
