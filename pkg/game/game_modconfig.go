@@ -7,38 +7,21 @@ import (
 	"strings"
 )
 
-type ModOrder struct {
-	ID       string     `xml:"id,attr"`
-	Children ModuleList `xml:"children"`
-}
-
-type ModuleList struct {
-	Modules []Module `xml:"node"`
-}
-
-type Module struct {
-	ID        string    `xml:"id,attr"`
-	Attribute Attribute `xml:"attribute"`
-}
-
-type Mods struct {
-	ID       string         `xml:"id,attr"`
-	Children ModuleDescList `xml:"children"`
-}
-
-type ModuleDescList struct {
-	Modules []ModuleShortDesc `xml:"node"`
-}
-
-type ModuleShortDesc struct {
-	ID         string      `xml:"id,attr"`
-	Attributes []Attribute `xml:"attribute"`
-}
-
 type ModSettingsLSX struct {
 	XMLName xml.Name `xml:"save"`
 	Version Version  `xml:"version"`
 	Region  Region   `xml:"region"`
+}
+
+type Region struct {
+	ID   string   `xml:"id,attr"`
+	Root RootNode `xml:"node"`
+}
+
+type RootNode struct {
+	ID         string         `xml:"id,attr"`
+	Children   []CategoryNode `xml:"children>node"` // This will capture all child nodes
+	Attributes []Attribute    `xml:"attribute"`
 }
 
 func (m *ModSettingsLSX) ToXML() string {
@@ -58,28 +41,14 @@ type Version struct {
 	Build    int `xml:"build,attr"`
 }
 
-type Region struct {
-	ID   string   `xml:"id,attr"`
-	Root RootNode `xml:"node"`
-}
-
 type Mod struct {
-	ID string `xml:"id,attr"`
-	// Attributes for ModuleShortDesc
+	ID         string      `xml:"id,attr"`
 	Attributes []Attribute `xml:"attribute"`
 }
 
 type CategoryNode struct {
-	ID       string `xml:"id,attr"`
-	Children []Mod  `xml:"children>node"` // This will capture all child nodes
-	// Attributes for ModuleShortDesc
-	Attributes []Attribute `xml:"attribute"`
-}
-
-type RootNode struct {
-	ID       string         `xml:"id,attr"`
-	Children []CategoryNode `xml:"children>node"` // This will capture all child nodes
-	// Attributes for ModuleShortDesc
+	ID         string      `xml:"id,attr"`
+	Children   []Mod       `xml:"children>node"` // This will capture all child nodes
 	Attributes []Attribute `xml:"attribute"`
 }
 
