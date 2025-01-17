@@ -43,7 +43,9 @@ func StatusCmd() *cobra.Command {
 			gui_tree.MakeChildrenSameKeyLen(bg3SeNode)
 
 			bg3CurrentSettings := gui_tree.AddChildStr(rootNode, "current settings")
-			gui_tree.AddChild(bg3CurrentSettings, gui_tree.Profile(config.GetCurrentProfile(cfg)))
+			gui_tree.AddChildStr(bg3CurrentSettings, "bg3 mod config")
+			//bookeeperCurrentProfileNode := gui_tree.AddChildStr(bg3CurrentSettings, "bookeeper current profile")
+			//gui_tree.AddChild(bookeeperCurrentProfileNode, gui_tree.Profile(config.GetCurrentProfile(cfg)))
 
 			gui_tree.AddChild(rootNode, gui_tree.ProfilesN(cfg, "available profiles"))
 
