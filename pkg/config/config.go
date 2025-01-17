@@ -15,7 +15,7 @@ const (
 
 type BaseConfig struct {
 	SteamPath    boa.Required[string] `default:"${HOME}/.local/share/Steam" name:"steam-path" short-name:"s"`
-	UserDataPath boa.Required[string] `default:"${SteamPath}/userdata/[0]" name:"steam-user-id" short-name:"u"`
+	UserDataPath boa.Required[string] `default:"${SteamPath}/userdata/[0]" name:"user-data-path" short-name:"u"`
 }
 
 func HomeDir() string {
