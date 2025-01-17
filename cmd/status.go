@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/GiGurra/boa/pkg/boa"
 	"github.com/GiGurra/bookeeper/pkg/config"
+	"github.com/GiGurra/bookeeper/pkg/gui"
 	"github.com/spf13/cobra"
 	"github.com/xlab/treeprint"
 	"strings"
@@ -43,22 +44,9 @@ func StatusCmd() *cobra.Command {
 			makeNodeChildrenSameKeyLen(bg3SeNode)
 
 			bg3CurrentSettings := rootNode.AddBranch("current settings")
-			currentProfile := config.GetCurrentProfile(cfg)
-			currentProfileNode := bg3CurrentSettings.AddMetaBranch("current profile", currentProfile.Name)
-			modsNode := currentProfileNode.AddBranch("mods")
-			for _, mod := range currentProfile.Mods {
-				modsNode.AddMetaBranch(fmt.Sprintf("%s@%s", mod.Name, mod.Version), mod.DownloadPath)
-			}
+			bg3CurrentSettings.AddBranch(gui.Profile(config.GetCurrentProfile(cfg)))
 
-			profilesNode := rootNode.AddBranch("profiles")
-			profiles := config.ListProfiles(cfg)
-			for _, profile := range profiles {
-				profileNode := profilesNode.AddBranch(profile.Name)
-				modsNode := profileNode.AddBranch("mods")
-				for _, mod := range profile.Mods {
-					modsNode.AddMetaBranch(fmt.Sprintf("%s@%s", mod.Name, mod.Version), mod.DownloadPath)
-				}
-			}
+			rootNode.AddBranch(gui.Profiles(cfg))
 
 			bg3DownloadedModsNode := rootNode.AddBranch("downloaded/available mods")
 			installedMods := config.ListInstalledMods(cfg)
