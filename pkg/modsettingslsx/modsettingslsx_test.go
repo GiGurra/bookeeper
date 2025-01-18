@@ -3,6 +3,7 @@ package modsettingslsx
 import (
 	"encoding/xml"
 	"fmt"
+	"github.com/GiGurra/bookeeper/pkg/domain"
 	"github.com/google/go-cmp/cmp"
 	"log"
 	"os"
@@ -69,7 +70,7 @@ func TestXmlCategories_GetMods(t *testing.T) {
 		t.Fatalf("expected 2 mods, got %d", len(mods))
 	}
 
-	expect := []Mod{
+	expect := []domain.Mod{
 		{
 			Folder:    "GustavDev",
 			MD5:       "41a80562831251b58df743c05a7af21b",
@@ -91,10 +92,10 @@ func TestXmlCategories_GetMods(t *testing.T) {
 	}
 
 	// reverse order
-	modSettingsLSX.SetMods([]Mod{mods[1], mods[0]})
+	modSettingsLSX.SetMods([]domain.Mod{mods[1], mods[0]})
 
 	actual := modSettingsLSX.GetMods()
-	expect = []Mod{mods[1], mods[0]}
+	expect = []domain.Mod{mods[1], mods[0]}
 
 	if diff := cmp.Diff(expect, actual); diff != "" {
 		t.Fatalf("mismatch (-want +got):\n%s", diff)
@@ -106,7 +107,7 @@ func TestXmlRoot_GetMods_largeDataSet(t *testing.T) {
 	modSettingsXml := NewModSettingsXmlFromFile("testdata/modsettings.lsx")
 	mods := modSettingsXml.GetMods()
 
-	expect := []Mod{
+	expect := []domain.Mod{
 		{
 			Folder:        "GustavDev",
 			MD5:           "33c1655f7ae3559b579ff3b9d2c45413",

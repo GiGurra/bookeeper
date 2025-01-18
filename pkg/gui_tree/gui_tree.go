@@ -3,6 +3,7 @@ package gui_tree
 import (
 	"fmt"
 	"github.com/GiGurra/bookeeper/pkg/config"
+	"github.com/GiGurra/bookeeper/pkg/domain"
 	"github.com/xlab/treeprint"
 	"strings"
 )
@@ -31,10 +32,16 @@ func Profile(
 	return profileNode
 }
 
-func Mod(
+func ConfigMod(
 	mod config.Mod,
 ) treeprint.Tree {
 	return treeprint.NewWithRoot(fmt.Sprintf("%s@%s, [%s]", mod.Name, mod.Version, mod.DownloadPath))
+}
+
+func DomainMod(
+	mod domain.Mod,
+) treeprint.Tree {
+	return treeprint.NewWithRoot(fmt.Sprintf("%s @ %s, [%s]", mod.Name, mod.Version64, mod.UUID))
 }
 
 func ModVerbose(

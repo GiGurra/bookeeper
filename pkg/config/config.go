@@ -237,7 +237,7 @@ type Mod struct {
 	Version      string `json:"version"`
 }
 
-func ListInstalledMods(cfg *BaseConfig) []Mod {
+func ListAvailableMods(cfg *BaseConfig) []Mod {
 	entries, err := os.ReadDir(DownloadedModsDir(cfg))
 	if err != nil {
 		panic(fmt.Errorf("failed to read directory %s: %w", DownloadedModsDir(cfg), err))
@@ -271,69 +271,71 @@ type Profile struct {
 	Mods []Mod
 }
 
-func BookeperConfigFilePath(cfg *BaseConfig) string {
-	return filepath.Join(BooKeeperDir(cfg), "config.json")
-}
+//
+//func BookeperConfigFilePath(cfg *BaseConfig) string {
+//	return filepath.Join(BooKeeperDir(cfg), "config.json")
+//}
+//
+//type Config struct {
+//	//CurrentProfile string `json:"current_profile"`
+//}
+//
+//func (c *Config) toJson() []byte {
+//	bs, err := json.MarshalIndent(c, "", "  ")
+//	if err != nil {
+//		panic(fmt.Errorf("failed to marshal config to json: %w", err))
+//	}
+//	return bs
+//}
 
-type Config struct {
-	CurrentProfile string `json:"current_profile"`
-}
+//func GetConfig(cfg *BaseConfig) Config {
+//	// <bookeeper_config_file>
+//	configFilePath := BookeperConfigFilePath(cfg)
+//	if ExistsFile(configFilePath) {
+//		config := Config{}
+//		bs, err := os.ReadFile(configFilePath)
+//		if err != nil {
+//			panic(fmt.Errorf("failed to read config file %s: %w", configFilePath, err))
+//		}
+//		err = json.Unmarshal(bs, &config)
+//		if err != nil {
+//			panic(fmt.Errorf("failed to unmarshal config file %s: %w", configFilePath, err))
+//		}
+//		return config
+//	} else {
+//		// create and save new config
+//		fmt.Printf("Creating new config file at %s\n", configFilePath)
+//		config := Config{}
+//		SaveConfig(cfg, config)
+//		return config
+//	}
+//}
+//
+//func SaveConfig(cfg *BaseConfig, config Config) {
+//	// <bookeeper_config_file>
+//	err := os.WriteFile(BookeperConfigFilePath(cfg), config.toJson(), 0644)
+//	if err != nil {
+//		panic(fmt.Errorf("failed to write config file %s: %w", BookeperConfigFilePath(cfg), err))
+//	}
+//}
 
-func (c *Config) toJson() []byte {
-	bs, err := json.MarshalIndent(c, "", "  ")
-	if err != nil {
-		panic(fmt.Errorf("failed to marshal config to json: %w", err))
-	}
-	return bs
-}
-
-func GetConfig(cfg *BaseConfig) Config {
-	// <bookeeper_config_file>
-	configFilePath := BookeperConfigFilePath(cfg)
-	if ExistsFile(configFilePath) {
-		config := Config{}
-		bs, err := os.ReadFile(configFilePath)
-		if err != nil {
-			panic(fmt.Errorf("failed to read config file %s: %w", configFilePath, err))
-		}
-		err = json.Unmarshal(bs, &config)
-		if err != nil {
-			panic(fmt.Errorf("failed to unmarshal config file %s: %w", configFilePath, err))
-		}
-		return config
-	} else {
-		// create and save new config
-		fmt.Printf("Creating new config file at %s\n", configFilePath)
-		config := Config{}
-		SaveConfig(cfg, config)
-		return config
-	}
-}
-
-func SaveConfig(cfg *BaseConfig, config Config) {
-	// <bookeeper_config_file>
-	err := os.WriteFile(BookeperConfigFilePath(cfg), config.toJson(), 0644)
-	if err != nil {
-		panic(fmt.Errorf("failed to write config file %s: %w", BookeperConfigFilePath(cfg), err))
-	}
-}
-
-func GetCurrentProfile(cfg *BaseConfig) Profile {
-	name := GetConfig(cfg).CurrentProfile
-	if name == "" {
-		name = "default"
-		fmt.Printf("No current profile set, creating new default profile\n")
-		profile := Profile{
-			Name: name,
-			Path: filepath.Join(ProfilesDir(cfg), name),
-			Mods: []Mod{},
-		}
-		SaveProfile(cfg, profile)
-		currentConfig := GetConfig(cfg)
-		currentConfig.CurrentProfile = name
-		SaveConfig(cfg, currentConfig)
-		return profile
-	} else {
-		return GetProfile(cfg, name)
-	}
-}
+//
+//func GetCurrentProfile(cfg *BaseConfig) Profile {
+//	name := GetConfig(cfg).CurrentProfile
+//	if name == "" {
+//		name = "default"
+//		fmt.Printf("No current profile set, creating new default profile\n")
+//		profile := Profile{
+//			Name: name,
+//			Path: filepath.Join(ProfilesDir(cfg), name),
+//			Mods: []Mod{},
+//		}
+//		SaveProfile(cfg, profile)
+//		currentConfig := GetConfig(cfg)
+//		currentConfig.CurrentProfile = name
+//		SaveConfig(cfg, currentConfig)
+//		return profile
+//	} else {
+//		return GetProfile(cfg, name)
+//	}
+//}

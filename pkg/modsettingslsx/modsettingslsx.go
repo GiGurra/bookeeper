@@ -3,6 +3,8 @@ package modsettingslsx
 import (
 	"encoding/xml"
 	"fmt"
+	"github.com/GiGurra/bookeeper/pkg/config"
+	"github.com/GiGurra/bookeeper/pkg/domain"
 	"github.com/samber/lo"
 	"os"
 	"regexp"
@@ -30,7 +32,11 @@ func NewModSettingsXmlFromFile(filePath string) *ModSettingsXml {
 	return &root
 }
 
-func (n *ModSettingsXml) GetMods() []Mod {
+func Load(cfg *config.BaseConfig) *ModSettingsXml {
+	return NewModSettingsXmlFromFile(config.Bg3ModsettingsFilePath(cfg))
+}
+
+func (n *ModSettingsXml) GetMods() []domain.Mod {
 	return n.Region.Categories.GetMods()
 }
 
@@ -122,8 +128,8 @@ func (n *XmlCategories) SetXmlModOrder(newOrder []XmlMod) {
 //	<attribute id="Version64" type="int64" value="72339079752056832"/>
 //</node>
 
-func (n *XmlCategories) GetMods() []Mod {
-	result := make([]Mod, 0)
+func (n *XmlCategories) GetMods() []domain.Mod {
+	result := make([]domain.Mod, 0)
 	xmlMods := n.GetXmlMods()
 	order := n.GetXmlModOrder()
 	// order the xmlMods according to the order in the ModOrder
@@ -131,7 +137,7 @@ func (n *XmlCategories) GetMods() []Mod {
 	for _, mod := range order {
 		for _, xmlMod := range xmlMods {
 			if mod.GetXmlAttributeValue("UUID") == xmlMod.GetXmlAttributeValue("UUID") {
-				result = append(result, Mod{
+				result = append(result, domain.Mod{
 					Folder:        xmlMod.GetXmlAttributeValue("Folder"),
 					MD5:           xmlMod.GetXmlAttributeValue("MD5"),
 					Name:          xmlMod.GetXmlAttributeValue("Name"),
@@ -145,7 +151,7 @@ func (n *XmlCategories) GetMods() []Mod {
 	}
 	for _, xmlMod := range xmlMods {
 		if _, ok := handled[xmlMod.GetXmlAttributeValue("UUID")]; !ok {
-			result = append(result, Mod{
+			result = append(result, domain.Mod{
 				Folder:        xmlMod.GetXmlAttributeValue("Folder"),
 				MD5:           xmlMod.GetXmlAttributeValue("MD5"),
 				Name:          xmlMod.GetXmlAttributeValue("Name"),
@@ -158,9 +164,9 @@ func (n *XmlCategories) GetMods() []Mod {
 	return result
 }
 
-func (n *ModSettingsXml) SetMods(mods []Mod) {
+func (n *ModSettingsXml) SetMods(mods []domain.Mod) {
 
-	xmlMods := lo.Map(mods, func(mod Mod, _ int) XmlMod {
+	xmlMods := lo.Map(mods, func(mod domain.Mod, _ int) XmlMod {
 		return XmlMod{
 			ID: "ModuleShortDesc",
 			Attributes: []XmlAttribute{
@@ -174,7 +180,7 @@ func (n *ModSettingsXml) SetMods(mods []Mod) {
 		}
 	})
 
-	xmlModOrder := lo.Map(mods, func(mod Mod, _ int) XmlMod {
+	xmlModOrder := lo.Map(mods, func(mod domain.Mod, _ int) XmlMod {
 		return XmlMod{
 			ID: "Module",
 			Attributes: []XmlAttribute{
@@ -194,15 +200,6 @@ func (n *XmlMod) GetXmlAttributeValue(id string) string {
 		}
 	}
 	return ""
-}
-
-type Mod struct {
-	Folder        string
-	MD5           string
-	Name          string
-	PublishHandle string
-	UUID          string
-	Version64     string
 }
 
 func (n *ModSettingsXml) WithNewModSet() []XmlMod {
