@@ -78,7 +78,7 @@ func ModsMakeUnavailableCmd() *cobra.Command {
 				}), cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
 			}
 
-			return []string{}, cobra.ShellCompDirectiveNoFileComp
+			return []string{}, cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			domain.MakeModUnavailable(&cfg.Base, cfg.ModName.Value(), cfg.ModVersion.Value())
