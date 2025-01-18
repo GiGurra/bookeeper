@@ -21,10 +21,11 @@ func GetCmd() *cobra.Command {
 		"bookeeper-downloaded-mods-dir": config.DownloadedModsDir,
 		"bookeeper-profiles-dir":        config.ProfilesDir,
 		"bg3-dir":                       config.Bg3Path,
+		"bg3-modsettings-path":          config.Bg3ModsettingsFilePath,
 		"bg3-bin-dir":                   config.Bg3binPath,
 		"bg3-userdata-dir":              config.Bg3UserDataDir,
 		"bg3-mod-dir":                   config.Bg3ModInstallDir,
-		"bg3-userdata-profile-modsettings-xml-path": config.Bg3UserdataProfileModsettingsFilePath,
+		"bg3-userdata-modsettings-path": config.Bg3UserdataModsettingsFilePath,
 	}
 
 	validArgs := func() []string {
