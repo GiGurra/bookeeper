@@ -44,7 +44,6 @@ bookeeper bg3se install
 
 Mods are stored in `~/.local/share/bookeeper/downloaded_mods` and are not automatically downloaded. You need to download
 a mod zip file, and then run `bookeeper mods make-available <mod-zip-path>` to make it available for activation.
-
 NOTE: This assumes the zip file comes with a proper `info.json` file. If not, you need to create one manually.
 
 Downloaded mods are stored with one directory per mod version, like so:
@@ -59,6 +58,7 @@ downloaded_mods
         ├── somethingelse.pak
         └── info.json
 ```
+
 
 ### Mod activation
 
@@ -164,6 +164,53 @@ Default paths can be overridden with flags or environment variables:
 - Manual mod file downloading required
 - Only tested on Linux/Steam
 
+## Advanced
+
+### Fixing mods with bad `info.json` files
+
+NOTE: Some mods do come with a `info.json` file, but with incorrectly named keys. This will also not work.
+For example `5eSpells` comes with a `json.json` file with bad keys. You need to rename them to the proper key names.
+
+The proper `info.json` format is:
+```json
+{
+  "Mods": [
+    {
+      "Author": "Charis",
+      "Name": "UnlockLevelCurve_Patch_XP_x0.5",
+      "Folder": "UnlockLevelCurve_Patch_XP_x0.5",
+      "Version": "72057594037927960",
+      "Description": "Halves the XP requirement",
+      "UUID": "e53ae4b5-a922-47ef-b69d-d55c5745a65b",
+      "Created": "2024-07-22T20:17:59.1988778+02:00",
+      "Dependencies": [],
+      "Group": "dafe83c2-97b3-4b05-9aef-2e1cc2e1de98"
+    }
+  ],
+  "MD5": "87758161b02ba6eb90ac2a6c92cd746f"
+}
+```
+
+Required fields are:
+- `Name`: The name of the mod
+- `Folder`: I dont really know what this is, but I think it has to be correct :D
+- `Version`: The version of the mod, but can be something as simple as 1
+- `UUID`: A unique identifier for the mod (must match what is encoded in the .pak, I think)
+
+Example of fixed `5eSpells` `info.json`:
+```json
+{
+  "mods": [
+    {
+      "Name": "5eSpells",
+      "UUID": "fb5f528d-4d48-4bf2-a668-2274d3cfba96",
+      "Folder": "5eSpells",
+      "version": "1",
+      "MD5": ""
+    }
+  ]
+}
+```
 ## License
 
 MIT
