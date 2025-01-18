@@ -33,7 +33,7 @@ func NewModSettingsXmlFromFile(filePath string) *ModSettingsXml {
 }
 
 func Load(cfg *config.BaseConfig) *ModSettingsXml {
-	return NewModSettingsXmlFromFile(config.Bg3UserdataModsettingsFilePath(cfg))
+	return NewModSettingsXmlFromFile(config.Bg3ModsettingsFilePath(cfg))
 }
 
 func (n *ModSettingsXml) GetMods() []domain.Mod {
