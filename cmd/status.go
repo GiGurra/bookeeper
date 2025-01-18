@@ -47,9 +47,9 @@ func StatusCmd() *cobra.Command {
 			gui_tree.AddKV(compatdataDir, "mod dir", config.Bg3ModInstallDir(cfg))
 			gui_tree.AddKV(compatdataDir, "modsettings.lsx", config.Bg3ModsettingsFilePath(cfg))
 
-			userdataNode := gui_tree.AddKV(bg3PathsNode, "userdata", config.Bg3UserDataDir(cfg))
-			gui_tree.AddKV(userdataNode, "modsettings.lsx", config.Bg3UserdataModsettingsFilePath(cfg))
-			gui_tree.MakeChildrenSameKeyLen(bg3PathsNode)
+			//userdataNode := gui_tree.AddKV(bg3PathsNode, "userdata", config.Bg3UserDataDir(cfg))
+			//gui_tree.AddKV(userdataNode, "modsettings.lsx", config.Bg3UserdataModsettingsFilePath(cfg))
+			//gui_tree.MakeChildrenSameKeyLen(bg3PathsNode)
 
 			bg3ActiveModsNode := gui_tree.AddChildStr(rootNode, "bg3 active mods")
 			for _, mod := range domain.ListActiveMods(cfg) {

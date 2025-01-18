@@ -23,8 +23,8 @@ func GetCmd() *cobra.Command {
 		"bg3-dir":                       config.Bg3Path,
 		"bg3-modsettings-path":          config.Bg3ModsettingsFilePath,
 		"bg3-bin-dir":                   config.Bg3binPath,
-		"bg3-userdata-dir":              config.Bg3UserDataDir,
-		"bg3-mod-dir":                   config.Bg3ModInstallDir,
+		//"bg3-userdata-dir":              config.Bg3UserDataDir,
+		"bg3-mod-dir": config.Bg3ModInstallDir,
 		//"bg3-userdata-modsettings-path": config.Bg3UserdataModsettingsFilePath,
 	}
 
