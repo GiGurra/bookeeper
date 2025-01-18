@@ -1,6 +1,7 @@
 # Bookeeper
 
-A basic CLI mod manager for Baldur's Gate 3 on Linux/Steam. This is just an experiment/prototype.
+A basic CLI mod manager for Baldur's Gate 3 on Linux/Steam. This is just an experiment/prototype/weekend hack I wanted
+when I switched over from windows on my game machine.
 
 ## Features
 
@@ -37,6 +38,11 @@ bookeeper profiles delete <profile-name>
 # Install BG3 Script Extender
 bookeeper bg3se install
 ```
+
+### Load order
+
+The only way currently to control mod load order is to deactivate and reactivate mods in the desired order,
+Sorry :D, this might be improved later, if I (or someone else) continues working on this.
 
 ## Configuration
 
