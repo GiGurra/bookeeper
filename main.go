@@ -18,6 +18,7 @@ func main() {
 			cmd.StatusCmd(),
 			cmd.GetCmd(),
 			cmd.ModsCmd(),
+			cmd.Bg3SeCmd(),
 		},
 		Params:      &cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
