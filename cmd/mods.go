@@ -1,13 +1,13 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/GiGurra/boa/pkg/boa"
 	"github.com/GiGurra/bookeeper/pkg/config"
 	"github.com/GiGurra/bookeeper/pkg/domain"
 	"github.com/GiGurra/bookeeper/pkg/modsettingslsx"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
-	"strings"
 )
 
 func ModsCmd() *cobra.Command {
@@ -50,9 +50,15 @@ func ModsActivateCmd() *cobra.Command {
 	}.ToCmd()
 }
 
+type ModsDeactivateCmdConfig struct {
+	Base       config.BaseConfig
+	ModName    boa.Required[string] `positional:"true" description:"mod to deactivate"`
+	ModVersion boa.Required[string] `positional:"true" description:"version of the mod to deactivate"`
+}
+
 func ModsDeactivateCmd() *cobra.Command {
 
-	cfg := &ModsActivateCmdConfig{}
+	cfg := &ModsDeactivateCmdConfig{}
 
 	return boa.Wrap{
 		Use:           "deactivate",
@@ -61,7 +67,16 @@ func ModsDeactivateCmd() *cobra.Command {
 		ParamEnrich:   boa.ParamEnricherDefault,
 		ValidArgsFunc: ValidActiveModNameAndVersionArgsFunc(&cfg.Base),
 		Run: func(cmd *cobra.Command, args []string) {
-			panic("not implemented")
+
+			modXml := modsettingslsx.Load(&cfg.Base)
+			for _, mod := range modXml.GetMods() {
+				if mod.Name == cfg.ModName.Value() && mod.Version64 == cfg.ModVersion.Value() {
+					fmt.Printf("deactivating mod %s, v %s\n", mod.Name, mod.Version64)
+					return
+				}
+			}
+
+			panic(fmt.Errorf("mod %s, v %s not found", cfg.ModName.Value(), cfg.ModVersion.Value()))
 		},
 	}.ToCmd()
 }
@@ -119,7 +134,7 @@ func ValidAvailableModNameAndVersionArgsFunc(cfg *config.BaseConfig) func(cmd *c
 		case 0:
 			return lo.Map(lo.Keys(modsByName), func(item string, _ int) string {
 				// replace spaces with \<space>
-				return strings.ReplaceAll(item, " ", "\\ ")
+				return item
 			}), cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
 		case 1:
 			return lo.Map(modsByName[args[0]], func(item domain.Mod, _ int) string {
@@ -145,7 +160,8 @@ func ValidActiveModNameAndVersionArgsFunc(cfg *config.BaseConfig) func(cmd *cobr
 		case 0:
 			return lo.Map(lo.Keys(modsByName), func(item string, _ int) string {
 				// replace spaces with \<space>
-				return strings.ReplaceAll(item, " ", "\\ ")
+				// if we have spaces, we need to quote it
+				return item
 			}), cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
 		case 1:
 			return lo.Map(modsByName[args[0]], func(item domain.Mod, _ int) string {
@@ -155,4 +171,8 @@ func ValidActiveModNameAndVersionArgsFunc(cfg *config.BaseConfig) func(cmd *cobr
 			return []string{}, cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
 		}
 	}
+}
+
+func quote(s string) string {
+	return fmt.Sprintf("\"%s\"", s)
 }
