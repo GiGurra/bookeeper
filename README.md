@@ -9,7 +9,7 @@ when I switched over from windows on my game machine.
 - Manages mod profiles (save/load different mod combinations)
 - Downloads and installs BG3 Script Extender
 - Support for switching between multiple versions of the same mod
-- Full CLI autocompletion (bash/zsh/fish/powershell)
+- CLI autocompletion (bash/zsh/fish/powershell)
 
 ## Installation
 
