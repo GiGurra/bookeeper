@@ -56,7 +56,7 @@ func DomainMod(
 		return &treeprint.Node{
 			Root:  nil,
 			Meta:  mod.Name,
-			Value: fmt.Sprintf("%s, v%s", mod.UUID, mod.Version64),
+			Value: fmt.Sprintf("%s, v %s", mod.UUID, mod.Version64),
 			Nodes: nil,
 		}
 	}
