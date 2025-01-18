@@ -7,7 +7,7 @@ when I switched over from windows on my game machine.
 
 - Manages individual mods (activation/deactivation)
 - Manages mod profiles (save/load different mod combinations)
-- Downloads and install BG3 Script Extender
+- Downloads and installs BG3 Script Extender
 - Support for switching between multiple versions of the same mod
 - Full CLI autocompletion (bash/zsh/fish/powershell)
 
