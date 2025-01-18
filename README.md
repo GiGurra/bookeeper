@@ -62,7 +62,7 @@ downloaded_mods
 
 ### Mod activation
 
-Mods are activated by name and version, by running `bookeeper mods activate <mod-name> <version>`. This will create a
+Mods are activated by name and version, by running `bookeeper mods activate <mod-name> <version>`. This will create
 symlinks the bg3 mod directory to all the `.pak` files in the mod version directory under `downloaded_mods`.
 
 ### CLI help
