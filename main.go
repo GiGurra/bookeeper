@@ -17,6 +17,7 @@ func main() {
 		SubCommands: []*cobra.Command{
 			cmd.StatusCmd(),
 			cmd.GetCmd(),
+			cmd.ModsCmd(),
 		},
 		Params:      &cfg,
 		ParamEnrich: boa.ParamEnricherDefault,

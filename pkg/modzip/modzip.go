@@ -2,6 +2,7 @@ package modzip
 
 import (
 	"archive/zip"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"github.com/GiGurra/bookeeper/pkg/config"
@@ -62,6 +63,91 @@ func InspectModZipUsingTempFolderExtract(
 	}
 
 	return modData
+}
+
+func ExtractSpecificFilesFromZip(
+	zipPath string,
+	fileNames []string,
+	targetDir string,
+) {
+	if !config.ExistsFile(zipPath) {
+		panic(fmt.Errorf("mod zip file not found: %s", zipPath))
+	}
+
+	// Open the zip file
+	reader, err := zip.OpenReader(zipPath)
+	if err != nil {
+		panic(fmt.Errorf("failed to open zip file: %w", err))
+	}
+	defer func() {
+		err := reader.Close()
+		if err != nil {
+			panic(fmt.Errorf("failed to close zip file: %w", err))
+		}
+	}()
+
+	for _, fileName := range fileNames {
+		file, err := reader.Open(fileName)
+		if err != nil {
+			panic(fmt.Errorf("failed to open file in zip: %w", err))
+		}
+
+		// calculate the target path
+		targetPath := filepath.Join(targetDir, fileName)
+
+		// check if the target file exists
+		// only continue if the checksums are equal, otherwise panic
+		if config.ExistsFile(targetPath) {
+			targetFileReader, err := os.Open(targetPath)
+			if err != nil {
+				panic(fmt.Errorf("failed to open target file: %w", err))
+			}
+			targetFileChecksum := func() string {
+				defer func() {
+					err := targetFileReader.Close()
+					if err != nil {
+						panic(fmt.Errorf("failed to close target file: %w", err))
+					}
+				}()
+				return checksumFile(targetFileReader)
+			}()
+			if checksumFile(file) != targetFileChecksum {
+				_ = targetFileReader.Close()
+				panic(fmt.Errorf("checksum mismatch for file: %s. reconciliation not yet implemented", targetPath))
+			} else {
+				continue // go to next file :S
+			}
+		}
+
+		// Now copy the file
+		func() {
+			dstFile, err := os.OpenFile(targetPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+			if err != nil {
+				panic(fmt.Errorf("failed to create file: %w", err))
+			}
+			defer func() {
+				err := dstFile.Close()
+				if err != nil {
+					panic(fmt.Errorf("failed to close file: %w", err))
+				}
+			}()
+
+			_, err = io.Copy(dstFile, file)
+			if err != nil {
+				panic(fmt.Errorf("failed to copy file: %w", err))
+			}
+		}()
+	}
+}
+
+func checksumFile(fileReader io.Reader) string {
+	hash := sha256.New()
+	_, err := io.Copy(hash, fileReader)
+	if err != nil {
+		panic(fmt.Errorf("failed to copy file: %w", err))
+	}
+
+	return fmt.Sprintf("%x", hash.Sum(nil))
 }
 
 func InspectModZip(
