@@ -16,6 +16,7 @@ func main() {
 		Short: "Very basic cli mod manager for Baldur's Gate 3",
 		SubCommands: []*cobra.Command{
 			cmd.StatusCmd(),
+			cmd.GetCmd(),
 		},
 		Params:      &cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
