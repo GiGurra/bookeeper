@@ -23,6 +23,7 @@ func DomainProfile(
 	for _, mod := range profile.Mods {
 		AddChild(profileNode, DomainMod(mod, verbose))
 	}
+	MakeChildrenSameKeyLen(profileNode)
 	return profileNode
 }
 
