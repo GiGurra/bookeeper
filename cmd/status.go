@@ -27,12 +27,14 @@ func StatusCmd() *cobra.Command {
 
 			rootNode := treeprint.New() // NewWithRoot("Bookeeper Status")
 
+			///////////// bookeeper paths /////////////////////////////////////////
 			bookeeperPathsNode := gui_tree.AddChildStr(rootNode, "bookeeper paths")
 			gui_tree.AddKV(bookeeperPathsNode, "bookeeper", config.BooKeeperDir(cfg))
 			gui_tree.AddKV(bookeeperPathsNode, "downloaded mods", config.DownloadedModsDir(cfg))
 			gui_tree.AddKV(bookeeperPathsNode, "profiles", config.ProfilesDir(cfg))
 			gui_tree.MakeChildrenSameKeyLen(bookeeperPathsNode)
 
+			///////////// bg3 paths /////////////////////////////////////////
 			bg3PathsNode := gui_tree.AddChildStr(rootNode, "bg3 paths")
 
 			installNode := gui_tree.AddKV(bg3PathsNode, "bg3 install dir", config.Bg3Path(cfg))
@@ -43,15 +45,13 @@ func StatusCmd() *cobra.Command {
 			gui_tree.AddKV(bg3SeNode, "dll path", bg3SeDllPath)
 			gui_tree.MakeChildrenSameKeyLen(bg3SeNode)
 
+			///////////// compatdata /////////////////////////////////////////
 			compatdataDir := gui_tree.AddChildStr(bg3PathsNode, "compatdata")
 			gui_tree.AddKV(compatdataDir, "mod dir", config.Bg3ModInstallDir(cfg))
 			gui_tree.AddKV(compatdataDir, "modsettings.lsx", config.Bg3ModsettingsFilePath(cfg))
 			gui_tree.MakeChildrenSameKeyLen(compatdataDir)
 
-			//userdataNode := gui_tree.AddKV(bg3PathsNode, "userdata", config.Bg3UserDataDir(cfg))
-			//gui_tree.AddKV(userdataNode, "modsettings.lsx", config.Bg3UserdataModsettingsFilePath(cfg))
-			//gui_tree.MakeChildrenSameKeyLen(bg3PathsNode)
-
+			///////////// Active mods /////////////////////////////////////////
 			bg3ActiveModsNode := gui_tree.AddChildStr(rootNode, "bg3 active mods")
 			for _, mod := range domain.ListActiveMods(cfg) {
 				gui_tree.AddChild(bg3ActiveModsNode, gui_tree.DomainMod(mod, cfg.Verbose.Value()))
@@ -59,19 +59,25 @@ func StatusCmd() *cobra.Command {
 			}
 			gui_tree.MakeChildrenSameKeyLen(bg3ActiveModsNode)
 
-			//bg3CurrentSettings := gui_tree.AddChildStr(rootNode, "current settings")
-			//gui_tree.AddChildStr(bg3CurrentSettings, "bg3 mod config")
-			//bookeeperCurrentProfileNode := gui_tree.AddChildStr(bg3CurrentSettings, "bookeeper current profile")
-			//gui_tree.AddChild(bookeeperCurrentProfileNode, gui_tree.Profile(config.GetCurrentProfile(cfg)))
+			///////////// Profiles /////////////////////////////////////////
+			availableProfilesTitle := "available profiles"
+			if cfg.Verbose.Value() {
+				availableProfilesTitle += " (" + config.ProfilesDir(cfg) + ")"
+			}
+			gui_tree.AddChild(rootNode, gui_tree.ProfilesN(cfg, availableProfilesTitle))
 
-			gui_tree.AddChild(rootNode, gui_tree.ProfilesN(cfg, "available profiles"))
-
-			bg3DownloadedModsNode := rootNode.AddBranch("available mods")
+			///////////// Available mods /////////////////////////////////////////
+			availableModsTitle := "available mods"
+			if cfg.Verbose.Value() {
+				availableModsTitle += " (" + config.DownloadedModsDir(cfg) + ")"
+			}
+			bg3DownloadedModsNode := rootNode.AddBranch(availableModsTitle)
 			for _, mod := range domain.ListAvailableMods(cfg) {
 				gui_tree.AddChild(bg3DownloadedModsNode, gui_tree.DomainMod(mod, cfg.Verbose.Value()))
 			}
 			gui_tree.MakeChildrenSameKeyLen(bg3DownloadedModsNode)
 
+			/////////////////////////////////////////////////////////////////////
 			fmt.Println(rootNode.String())
 		},
 	}.ToCmd()
