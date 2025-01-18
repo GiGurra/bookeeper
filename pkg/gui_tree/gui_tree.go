@@ -40,18 +40,25 @@ func ConfigMod(
 
 func DomainMod(
 	mod domain.Mod,
+	verbose bool,
 ) treeprint.Tree {
-	return treeprint.NewWithRoot(fmt.Sprintf("%s @ %s, [%s]", mod.Name, mod.Version64, mod.UUID))
-}
-
-func ModVerbose(
-	mod config.Mod,
-) treeprint.Tree {
-	branch := treeprint.NewWithRoot("mod")
-	branch.AddMetaBranch("name", mod.Name)
-	branch.AddMetaBranch("version", mod.Version)
-	branch.AddMetaBranch("download path", mod.DownloadPath)
-	return branch
+	if verbose {
+		branch := treeprint.NewWithRoot(mod.Name)
+		branch.AddMetaBranch("Folder", mod.Folder)
+		branch.AddMetaBranch("MD5", mod.MD5)
+		branch.AddMetaBranch("Name", mod.Name)
+		branch.AddMetaBranch("PublishHandle", mod.PublishHandle)
+		branch.AddMetaBranch("UUID", mod.UUID)
+		branch.AddMetaBranch("Version64", mod.Version64)
+		return branch
+	} else {
+		return &treeprint.Node{
+			Root:  nil,
+			Meta:  mod.Name,
+			Value: fmt.Sprintf("%s, v%s", mod.UUID, mod.Version64),
+			Nodes: nil,
+		}
+	}
 }
 
 func AddChild(
@@ -62,7 +69,13 @@ func AddChild(
 	if !ok {
 		panic("expected treeprint.Node")
 	}
-	branch := atParent.AddBranch(node.Value)
+	branch := func() treeprint.Tree {
+		if node.Meta != nil {
+			return atParent.AddMetaBranch(node.Meta, node.Value)
+		} else {
+			return atParent.AddBranch(node.Value)
+		}
+	}()
 	for _, child := range node.Nodes {
 		AddChild(branch, child)
 	}
