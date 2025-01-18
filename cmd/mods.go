@@ -146,21 +146,18 @@ func ModsDeactivateAllCmd() *cobra.Command {
 
 			modsettings := modsettingslsx.Load(cfg)
 			currentMods := domain.ListActiveMods(modsettings)
-			newModList := lo.Filter(currentMods, func(mod domain.Mod, _ int) bool {
+			grouped := lo.GroupBy(currentMods, func(mod domain.Mod) bool {
 				return mod.Name == "GustavDev"
 			})
-			domain.SetActiveModsInBg3Cfg(modsettings, newModList)
+			newModList := grouped[true]
+			modsToDeactivate := grouped[false]
 
-			newXml := modsettings.ToXML()
-			fmt.Printf("new xml: \n%s\n", newXml)
-
-			xmlSavePath := config.Bg3ModsettingsFilePath(cfg)
-			fmt.Printf("saving to %s\n", xmlSavePath)
-
-			err := os.WriteFile(xmlSavePath, []byte(newXml), 0644)
-			if err != nil {
-				panic(fmt.Errorf("failed to write file: %w", err))
+			for _, mod := range modsToDeactivate {
+				domain.DeletePakFileLinks(domain.CalculatePakFileLinks(cfg, mod))
 			}
+
+			domain.SetActiveModsInBg3Cfg(modsettings, newModList)
+			domain.StoreModsInBg3Cfg(cfg, modsettings)
 		},
 	}.ToCmd()
 }
