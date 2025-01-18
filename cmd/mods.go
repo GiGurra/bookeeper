@@ -48,7 +48,22 @@ func ModsActivateCmd() *cobra.Command {
 		ParamEnrich:   boa.ParamEnricherDefault,
 		ValidArgsFunc: ValidAvailableModNameAndVersionArgsFunc(&cfg.Base),
 		Run: func(cmd *cobra.Command, args []string) {
-			panic("not implemented")
+
+			if cfg.ModName.Value() == "GustavDev" {
+				fmt.Println("Not allowed to deactivate GustavDev")
+				os.Exit(1)
+			}
+
+			availableMods := domain.ListAvailableMods(&cfg.Base)
+			for _, mod := range availableMods {
+				if mod.Name == cfg.ModName.Value() && mod.Version64 == cfg.ModVersion.Value() {
+					fmt.Printf("activating mod %s, v %s\n", mod.Name, mod.Version64)
+					return
+				}
+			}
+
+			panic(fmt.Errorf("mod %s, v %s not found", cfg.ModName.Value(), cfg.ModVersion.Value()))
+
 		},
 	}.ToCmd()
 }
