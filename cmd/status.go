@@ -52,7 +52,11 @@ func StatusCmd() *cobra.Command {
 			gui_tree.MakeChildrenSameKeyLen(compatdataDir)
 
 			///////////// Active mods /////////////////////////////////////////
-			bg3ActiveModsNode := gui_tree.AddChildStr(rootNode, "bg3 active mods")
+			activeModsTitle := "active mods"
+			if cfg.Verbose.Value() {
+				activeModsTitle += " (modsettings.lsx)"
+			}
+			bg3ActiveModsNode := gui_tree.AddChildStr(rootNode, activeModsTitle)
 			for _, mod := range domain.ListActiveMods(cfg) {
 				gui_tree.AddChild(bg3ActiveModsNode, gui_tree.DomainMod(mod, cfg.Verbose.Value()))
 				//gui_tree.AddKV(bg3ActiveModsNode, mod.Name, fmt.Sprintf("%s, v%s", mod.UUID, mod.Version64))
