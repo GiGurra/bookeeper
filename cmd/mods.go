@@ -164,7 +164,3 @@ func ValidActiveModNameAndVersionArgsFunc(cfg *config.BaseConfig) func(cmd *cobr
 		}
 	}
 }
-
-func quote(s string) string {
-	return fmt.Sprintf("\"%s\"", s)
-}
