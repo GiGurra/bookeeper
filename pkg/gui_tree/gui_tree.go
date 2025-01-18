@@ -80,7 +80,7 @@ func AddChildStr(
 func AddKV(
 	atParent treeprint.Tree,
 	key any,
-	value any,
+	value string,
 ) treeprint.Tree {
 	return atParent.AddMetaBranch(key, value)
 }

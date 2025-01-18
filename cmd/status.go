@@ -8,6 +8,7 @@ import (
 	"github.com/GiGurra/bookeeper/pkg/modsettingslsx"
 	"github.com/spf13/cobra"
 	"github.com/xlab/treeprint"
+	"strconv"
 )
 
 func StatusCmd() *cobra.Command {
@@ -38,7 +39,7 @@ func StatusCmd() *cobra.Command {
 			gui_tree.AddKV(installNode, "bin", config.Bg3binPath(cfg))
 
 			bg3SeNode := gui_tree.AddChildStr(installNode, "bg3se status")
-			gui_tree.AddKV(bg3SeNode, "installed", bg3SeInstalled)
+			gui_tree.AddKV(bg3SeNode, "installed", strconv.FormatBool(bg3SeInstalled))
 			gui_tree.AddKV(bg3SeNode, "dll path", bg3SeDllPath)
 			gui_tree.MakeChildrenSameKeyLen(bg3SeNode)
 
@@ -53,12 +54,12 @@ func StatusCmd() *cobra.Command {
 			modXml := modsettingslsx.Load(cfg)
 			bg3ActiveModsNode := gui_tree.AddChildStr(rootNode, "bg3 active mods")
 			for _, mod := range modXml.GetMods() {
-				bg3ActiveModsNode.AddMetaNode(mod.Name, fmt.Sprintf("%s, v%s", mod.UUID, mod.Version64))
+				gui_tree.AddKV(bg3ActiveModsNode, mod.Name, fmt.Sprintf("%s, v%s", mod.UUID, mod.Version64))
 			}
 			gui_tree.MakeChildrenSameKeyLen(bg3ActiveModsNode)
 
-			bg3CurrentSettings := gui_tree.AddChildStr(rootNode, "current settings")
-			gui_tree.AddChildStr(bg3CurrentSettings, "bg3 mod config")
+			//bg3CurrentSettings := gui_tree.AddChildStr(rootNode, "current settings")
+			//gui_tree.AddChildStr(bg3CurrentSettings, "bg3 mod config")
 			//bookeeperCurrentProfileNode := gui_tree.AddChildStr(bg3CurrentSettings, "bookeeper current profile")
 			//gui_tree.AddChild(bookeeperCurrentProfileNode, gui_tree.Profile(config.GetCurrentProfile(cfg)))
 

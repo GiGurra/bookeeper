@@ -121,7 +121,7 @@ func TestBg3ModsettingsFilePath(t *testing.T) {
 
 func TestBg3MidsettingsFilePath(t *testing.T) {
 	cfg := validateConfig(&BaseConfig{})
-	result := Bg3MidsettingsFilePath(cfg)
+	result := Bg3ModsettingsFilePath(cfg)
 
 	slog.Info(fmt.Sprintf("Bg3MidsettingsFilePath(): %s", result))
 
