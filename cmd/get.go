@@ -24,6 +24,7 @@ func GetCmd() *cobra.Command {
 		"bg3-bin-dir":                   config.Bg3binPath,
 		"bg3-userdata-dir":              config.Bg3UserDataDir,
 		"bg3-mod-dir":                   config.Bg3ModInstallDir,
+		"bg3-userdata-profile-modsettings-xml-path": config.Bg3UserdataProfileModsettingsFilePath,
 	}
 
 	validArgs := func() []string {

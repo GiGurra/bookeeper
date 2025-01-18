@@ -110,12 +110,23 @@ func TestBg3ProfileDir(t *testing.T) {
 
 func TestBg3ModsettingsFilePath(t *testing.T) {
 	cfg := validateConfig(&BaseConfig{})
-	result := Bg3ModsettingsFilePath(cfg)
+	result := Bg3UserdataProfileModsettingsFilePath(cfg)
 
-	slog.Info(fmt.Sprintf("Bg3ModsettingsFilePath(): %s", result))
+	slog.Info(fmt.Sprintf("Bg3UserdataProfileModsettingsFilePath(): %s", result))
 
 	if !ExistsFile(result) {
-		t.Fatalf("Bg3ModsettingsFilePath() did not return a file")
+		t.Fatalf("Bg3UserdataProfileModsettingsFilePath() did not return a file")
+	}
+}
+
+func TestBg3MidsettingsFilePath(t *testing.T) {
+	cfg := validateConfig(&BaseConfig{})
+	result := Bg3MidsettingsFilePath(cfg)
+
+	slog.Info(fmt.Sprintf("Bg3MidsettingsFilePath(): %s", result))
+
+	if !ExistsFile(result) {
+		t.Fatalf("Bg3MidsettingsFilePath() did not return a file")
 	}
 }
 

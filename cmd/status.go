@@ -33,16 +33,22 @@ func StatusCmd() *cobra.Command {
 			gui_tree.MakeChildrenSameKeyLen(bookeeperPathsNode)
 
 			bg3PathsNode := gui_tree.AddChildStr(rootNode, "bg3 paths")
-			gui_tree.AddKV(bg3PathsNode, "install", config.Bg3Path(cfg))
-			gui_tree.AddKV(bg3PathsNode, "bin", config.Bg3binPath(cfg))
-			gui_tree.AddKV(bg3PathsNode, "userdata", config.Bg3UserDataDir(cfg))
-			gui_tree.AddKV(bg3PathsNode, "mod dir", config.Bg3ModInstallDir(cfg))
-			gui_tree.MakeChildrenSameKeyLen(bg3PathsNode)
 
-			bg3SeNode := gui_tree.AddChildStr(rootNode, "bg3se status")
+			installNode := gui_tree.AddKV(bg3PathsNode, "bg3 install dir", config.Bg3Path(cfg))
+			gui_tree.AddKV(installNode, "bin", config.Bg3binPath(cfg))
+
+			bg3SeNode := gui_tree.AddChildStr(installNode, "bg3se status")
 			gui_tree.AddKV(bg3SeNode, "installed", bg3SeInstalled)
 			gui_tree.AddKV(bg3SeNode, "dll path", bg3SeDllPath)
 			gui_tree.MakeChildrenSameKeyLen(bg3SeNode)
+
+			compatdataDir := gui_tree.AddChildStr(bg3PathsNode, "compatdata")
+			gui_tree.AddKV(compatdataDir, "mod dir", config.Bg3ModInstallDir(cfg))
+			gui_tree.AddKV(compatdataDir, "modsettings.lsx", config.Bg3ModsettingsFilePath(cfg))
+
+			userdataNode := gui_tree.AddKV(bg3PathsNode, "userdata", config.Bg3UserDataDir(cfg))
+			gui_tree.AddKV(userdataNode, "modsettings.lsx", config.Bg3UserdataProfileModsettingsFilePath(cfg))
+			gui_tree.MakeChildrenSameKeyLen(bg3PathsNode)
 
 			modXml := modsettingslsx.Load(cfg)
 			bg3ActiveModsNode := gui_tree.AddChildStr(rootNode, "bg3 active mods")

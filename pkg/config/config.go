@@ -15,9 +15,10 @@ const (
 )
 
 type BaseConfig struct {
-	SteamPath      boa.Required[string] `default:"${HOME}/.local/share/Steam" name:"steam-path" short-name:"s"`
-	UserDataPath   boa.Required[string] `default:"${SteamPath}/userdata/[0]" name:"user-data-path" short-name:"u"`
-	ModsInstallDir boa.Required[string] `default:"${SteamPath}/steamapps/compatdata/1086940/pfx/drive_c/users/steamuser/AppData/Local/Larian Studios/Baldur's Gate 3/Mods" name:"mods-install-dir" short-name:"m"`
+	SteamPath          boa.Required[string] `default:"${HOME}/.local/share/Steam" name:"steam-path" short-name:"s"`
+	UserDataPath       boa.Required[string] `default:"${SteamPath}/userdata/[0]" name:"user-data-path" short-name:"u"`
+	ModsInstallDir     boa.Required[string] `default:"${SteamPath}/steamapps/compatdata/1086940/pfx/drive_c/users/steamuser/AppData/Local/Larian Studios/Baldur's Gate 3/Mods" name:"mods-install-dir" short-name:"m"`
+	ModSettingsLsxPath boa.Required[string] `default:"${SteamPath}/steamapps/compatdata/1086940/pfx/drive_c/users/steamuser/AppData/Local/Larian Studios/Baldur's Gate 3/PlayerProfiles/Public/modsettings.lsx" name:"mod-settings-lsx-path" short-name:"l"`
 }
 
 func HomeDir() string {
@@ -227,8 +228,13 @@ func Bg3ProfileDir(cfg *BaseConfig) string {
 	return filepath.Join(Bg3UserDataDir(cfg), "remote", "_PROFILE_Public")
 }
 
-func Bg3ModsettingsFilePath(cfg *BaseConfig) string {
+func Bg3UserdataProfileModsettingsFilePath(cfg *BaseConfig) string {
 	return filepath.Join(Bg3ProfileDir(cfg), "modsettings.lsx")
+}
+
+// "/home/johkjo/.local/share/Steam/steamapps/compatdata/1086940/pfx/drive_c/users/steamuser/AppData/Local/Larian Studios/Baldur's Gate 3/PlayerProfiles/Public/modsettings.lsx"
+func Bg3ModsettingsFilePath(cfg *BaseConfig) string {
+	return replaceAllAliases(cfg, cfg.ModSettingsLsxPath.Value())
 }
 
 type Mod struct {
