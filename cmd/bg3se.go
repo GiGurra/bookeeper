@@ -66,7 +66,7 @@ func Bg3SeInstallCmd() *cobra.Command {
 			// extract the asset on top of our current bg3se installation/bin
 			modzip.ExtractSpecificFilesFromZip(downloadedZipFilePath, []string{"DWrite.dll"}, config.Bg3binPath(&cfg.Base))
 
-			fmt.Println("bg3se installed successfully")
+			fmt.Println("bg3se installed successfully to " + config.Bg3binPath(&cfg.Base))
 			fmt.Println("!! Remember to set the command line args in steam for bg3:")
 			//goland:noinspection GoPrintFunctions
 			fmt.Println(" WINEDLLOVERRIDES=\"DWrite.dll=n,b\" %command%")
