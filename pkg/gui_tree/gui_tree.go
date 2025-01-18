@@ -2,28 +2,26 @@ package gui_tree
 
 import (
 	"fmt"
-	"github.com/GiGurra/bookeeper/pkg/config"
 	"github.com/GiGurra/bookeeper/pkg/domain"
 	"github.com/xlab/treeprint"
 	"strings"
 )
 
-func DomainProfilesN(cfg *config.BaseConfig, name string) treeprint.Tree {
+func DomainProfilesN(name string, profiles []domain.Profile, verbose bool) treeprint.Tree {
 	profilesNode := treeprint.NewWithRoot(name)
-	profiles := domain.ListProfiles(cfg)
 	for _, profile := range profiles {
-		AddChild(profilesNode, DomainProfile(cfg, profile))
+		AddChild(profilesNode, DomainProfile(profile, verbose))
 	}
 	return profilesNode
 }
 
 func DomainProfile(
-	cfg *config.BaseConfig,
 	profile domain.Profile,
+	verbose bool,
 ) treeprint.Tree {
 	profileNode := treeprint.NewWithRoot(profile.Name)
 	for _, mod := range profile.Mods {
-		AddChild(profileNode, DomainMod(mod, cfg.Verbose.Value()))
+		AddChild(profileNode, DomainMod(mod, verbose))
 	}
 	return profileNode
 }

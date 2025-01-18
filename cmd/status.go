@@ -68,7 +68,7 @@ func StatusCmd() *cobra.Command {
 			if cfg.Verbose.Value() {
 				availableProfilesTitle += " (" + config.ProfilesDir(cfg) + ")"
 			}
-			gui_tree.AddChild(rootNode, gui_tree.DomainProfilesN(cfg, availableProfilesTitle))
+			gui_tree.AddChild(rootNode, gui_tree.DomainProfilesN(availableProfilesTitle, domain.ListProfiles(cfg), cfg.Verbose.Value()))
 
 			///////////// Available mods /////////////////////////////////////////
 			availableModsTitle := "available mods"
