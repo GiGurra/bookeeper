@@ -129,12 +129,8 @@ func GetLatestRelease(owner string, repo string) Release {
 	if err != nil {
 		panic(fmt.Errorf("failed to get latest release: %w", err))
 	}
-	defer func() {
-		_ = resp.Body.Close()
-	}()
-	defer func() {
-		_, _ = io.Copy(io.Discard, resp.Body)
-	}()
+	defer func() { _ = resp.Body.Close() }()
+	defer func() { _, _ = io.Copy(io.Discard, resp.Body) }()
 
 	// decode the json blob into a Release struct
 	var release Release
