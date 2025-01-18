@@ -78,7 +78,7 @@ func InspectModZip(
 	defer func() {
 		err := reader.Close()
 		if err != nil {
-			slog.Error(fmt.Sprintf("Failed to close zip file: %v", err))
+			panic(fmt.Errorf("failed to close zip file: %w", err))
 		}
 	}()
 
