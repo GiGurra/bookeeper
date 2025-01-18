@@ -48,6 +48,7 @@ a mod zip file, and then run `bookeeper mods make-available <mod-zip-path>` to m
 NOTE: This assumes the zip file comes with a proper `info.json` file. If not, you need to create one manually.
 
 Downloaded mods are stored with one directory per mod version, like so:
+
 ```
 downloaded_mods
 └── mod-name
@@ -66,7 +67,9 @@ symlinks the bg3 mod directory to all the `.pak` files in the mod version direct
 
 ### CLI help
 
-Experiment yourself. Below are some examples:
+Experiment yourself. You can navigate the command tree and use `--help` on each level.
+
+Below are some examples:
 
 ```bash
 > bookeeper --help
