@@ -59,7 +59,6 @@ downloaded_mods
         └── info.json
 ```
 
-
 ### Mod activation
 
 Mods are activated by name and version, by running `bookeeper mods activate <mod-name> <version>`. This will create a
@@ -144,6 +143,10 @@ Showing current status:
 The only way currently to control mod load order is to deactivate and reactivate mods in the desired order,
 Sorry :D, this might be improved later, if I (or someone else) continues working on this.
 
+The easiest solution right now is to just creat your load order once, with
+`bookeeper mods activate <mod-name> <version>`, and then save it to a profile with
+`bookeeper profiles save <profile-name>`. Then you can just load that profile whenever.
+
 ## Configuration
 
 Default paths can be overridden with flags or environment variables:
@@ -172,6 +175,7 @@ NOTE: Some mods do come with a `info.json` file, but with incorrectly named keys
 For example `5eSpells` comes with a `json.json` file with bad keys. You need to rename them to the proper key names.
 
 The proper `info.json` format is:
+
 ```json
 {
   "Mods": [
@@ -192,12 +196,14 @@ The proper `info.json` format is:
 ```
 
 Required fields are:
+
 - `Name`: The name of the mod
 - `Folder`: I dont really know what this is, but I think it has to be correct :D
 - `Version`: The version of the mod, but can be something as simple as 1
 - `UUID`: A unique identifier for the mod (must match what is encoded in the .pak, I think)
 
 Example of fixed `5eSpells` `info.json`:
+
 ```json
 {
   "mods": [
@@ -211,6 +217,7 @@ Example of fixed `5eSpells` `info.json`:
   ]
 }
 ```
+
 ## License
 
 MIT
