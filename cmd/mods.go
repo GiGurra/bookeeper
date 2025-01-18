@@ -51,6 +51,10 @@ func calculatePakFileLinks(
 	srcDir := filepath.Join(config.DownloadedModsDir(cfg), mod.Name, mod.Version64)
 	trgDir := config.Bg3ModInstallDir(cfg)
 
+	if !config.ExistsDir(srcDir) {
+		panic(fmt.Errorf("mod dir %s does not exist. Cannot calculate pak file links for mod activation/deactivation", srcDir))
+	}
+
 	entries, err := os.ReadDir(srcDir)
 	if err != nil {
 		panic(fmt.Errorf("failed to read dir: %w", err))
@@ -100,10 +104,14 @@ func storeModSettings(
 	modsettings *modsettingslsx.ModSettingsXml,
 ) {
 	newXml := modsettings.ToXML()
-	fmt.Printf("new xml: \n%s\n", newXml)
+	if cfg.Verbose.Value() {
+		fmt.Printf("new xml: \n%s\n", newXml)
+	}
 
 	xmlSavePath := config.Bg3ModsettingsFilePath(cfg)
-	fmt.Printf("saving to %s\n", xmlSavePath)
+	if cfg.Verbose.Value() {
+		fmt.Printf("saving to %s\n", xmlSavePath)
+	}
 
 	err := os.WriteFile(xmlSavePath, []byte(newXml), 0644)
 	if err != nil {
@@ -153,6 +161,7 @@ func ModsActivateCmd() *cobra.Command {
 			setupPakFileLinks(calculatePakFileLinks(&cfg.Base, mod))
 
 			// Then we must update the modsettings file
+			activeMods = append(activeMods, mod)
 			modsettings.SetMods(activeMods)
 			storeModSettings(&cfg.Base, modsettings)
 		},
@@ -177,34 +186,31 @@ func ModsDeactivateCmd() *cobra.Command {
 		ValidArgsFunc: ValidActiveModNameAndVersionArgsFunc(&cfg.Base),
 		Run: func(cmd *cobra.Command, args []string) {
 
+			fmt.Printf("deactivating mod %s, v %s\n", cfg.ModName.Value(), cfg.ModVersion.Value())
+
 			if cfg.ModName.Value() == "GustavDev" {
-				fmt.Println("Not allowed to deactivate GustavDev")
-				os.Exit(1)
+				exitWithUserError("Not allowed to deactivate GustavDev")
 			}
 
 			modsettings := modsettingslsx.Load(&cfg.Base)
-			modsBefore := modsettings.GetMods()
-			modsAfter := lo.Filter(modsBefore, func(mod domain.Mod, _ int) bool {
-				return mod.Name != cfg.ModName.Value() || mod.Version64 != cfg.ModVersion.Value()
+
+			activeMods := modsettings.GetMods()
+			mod, iMod, found := lo.FindIndexOf(activeMods, func(mod domain.Mod) bool {
+				return mod.Name == cfg.ModName.Value() && mod.Version64 == cfg.ModVersion.Value()
 			})
-
-			if len(modsBefore) == len(modsAfter) {
-				fmt.Printf("mod %s, v %s not found\n", cfg.ModName.Value(), cfg.ModVersion.Value())
-				os.Exit(1)
+			if !found {
+				exitWithUserError(fmt.Sprintf("mod %s, v %s not active, nothing to deactivate", cfg.ModName.Value(), cfg.ModVersion.Value()))
 			}
 
-			modsettings.SetMods(modsAfter)
+			// Remove the mod from the active mods list
+			activeMods = append(activeMods[:iMod], activeMods[iMod+1:]...)
 
-			newXml := modsettings.ToXML()
-			fmt.Printf("new xml: \n%s\n", newXml)
+			// First we must copy|symlink the required mod pak files
+			deletePakFileLinks(calculatePakFileLinks(&cfg.Base, mod))
 
-			xmlSavePath := config.Bg3ModsettingsFilePath(&cfg.Base)
-			fmt.Printf("saving to %s\n", xmlSavePath)
-
-			err := os.WriteFile(xmlSavePath, []byte(newXml), 0644)
-			if err != nil {
-				panic(fmt.Errorf("failed to write file: %w", err))
-			}
+			// Then we must update the modsettings file
+			modsettings.SetMods(activeMods)
+			storeModSettings(&cfg.Base, modsettings)
 		},
 	}.ToCmd()
 }
