@@ -50,6 +50,7 @@ func DomainMod(
 		branch.AddMetaBranch("PublishHandle", mod.PublishHandle)
 		branch.AddMetaBranch("UUID", mod.UUID)
 		branch.AddMetaBranch("Version64", mod.Version64)
+		MakeChildrenSameKeyLen(branch)
 		return branch
 	} else {
 		return &treeprint.Node{

@@ -18,6 +18,45 @@ type ModData struct {
 	MD5  string         `json:"MD5"`
 }
 
+func ReadInfoJson(path string) ModData {
+	bs, err := os.ReadFile(path)
+	if err != nil {
+		panic(fmt.Errorf("failed to read file: %w", err))
+	}
+
+	var modData ModData
+	err = json.Unmarshal(bs, &modData)
+	if err != nil {
+		panic(fmt.Errorf("failed to unmarshal json: %w", err))
+	}
+
+	return modData
+}
+
+func (m ModData) Entry() ModDataEntry {
+
+	if len(m.Mods) == 0 {
+		panic("No mods found in zip")
+	}
+	if len(m.Mods) > 2 {
+		panic("Multiple mods found in zip, not supported")
+	}
+	if len(m.Mods) == 2 {
+		// only OK if one is GustavDev (which is the game itself)
+		first := m.Mods[0]
+		second := m.Mods[1]
+		if first.Name == "GustavDev" {
+			return second
+		} else if second.Name == "GustavDev" {
+			return first
+		} else {
+			panic("Multiple mods found in zip, not supported")
+		}
+	}
+
+	return m.Mods[0]
+}
+
 type ModDataEntry struct {
 	Author       string `json:"Author"`
 	Name         string `json:"Name"`

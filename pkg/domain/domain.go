@@ -20,28 +20,7 @@ type Mod struct {
 func MakeModAvailable(cfg *config.BaseConfig, zipFilePath string) {
 
 	modData, pakFiles := modzip.InspectModZip(zipFilePath)
-
-	mod := func() modzip.ModDataEntry {
-		if len(modData.Mods) == 0 {
-			panic("No mods found in zip")
-		}
-		if len(modData.Mods) > 2 {
-			panic("Multiple mods found in zip, not supported")
-		}
-		if len(modData.Mods) == 2 {
-			// only OK if one is GustavDev (which is the game itself)
-			first := modData.Mods[0]
-			second := modData.Mods[1]
-			if first.Name == "GustavDev" {
-				return second
-			} else if second.Name == "GustavDev" {
-				return first
-			} else {
-				panic("Multiple mods found in zip, not supported")
-			}
-		}
-		return modData.Mods[0]
-	}()
+	mod := modData.Entry()
 
 	// calculate the mod path
 	modPath := filepath.Join(config.DownloadedModsDir(cfg), mod.Name, mod.Version)
@@ -57,4 +36,48 @@ func MakeModAvailable(cfg *config.BaseConfig, zipFilePath string) {
 
 	// DONE!
 	fmt.Printf("Mod %s@%s is now available\n", mod.Name, mod.Version)
+}
+
+func ListAvailableMods(cfg *config.BaseConfig) []Mod {
+	downloadDir := config.DownloadedModsDir(cfg)
+	entries, err := os.ReadDir(downloadDir)
+	if err != nil {
+		panic(fmt.Errorf("failed to read directory %s: %w", downloadDir, err))
+	}
+	var mods []Mod
+	for _, modRootEntry := range entries {
+		if modRootEntry.IsDir() {
+			// list versions of the mod
+			modPathWoV := filepath.Join(downloadDir, modRootEntry.Name())
+			modVersions, err := os.ReadDir(modPathWoV)
+			if err != nil {
+				panic(fmt.Errorf("failed to read directory %s: %w", modPathWoV, err))
+			}
+			for _, modVersionEntry := range modVersions {
+				if modVersionEntry.IsDir() {
+					modPath := filepath.Join(modPathWoV, modVersionEntry.Name())
+					// read info.json to get mod data
+					infoJsonPath := filepath.Join(modPath, "info.json")
+					if !config.ExistsFile(infoJsonPath) {
+						panic(fmt.Errorf("info.json not found in mod: %s", modPath))
+					}
+					mod := FromZipData(modzip.ReadInfoJson(infoJsonPath))
+					mods = append(mods, mod)
+				}
+			}
+		}
+	}
+	return mods
+}
+
+func FromZipData(zipData modzip.ModData) Mod {
+	mod := zipData.Entry()
+	return Mod{
+		Folder: mod.Folder,
+		MD5:    zipData.MD5,
+		Name:   mod.Name,
+		//PublishHandle: mod.PublishHandle,
+		UUID:      mod.UUID,
+		Version64: mod.Version,
+	}
 }

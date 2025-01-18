@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/GiGurra/boa/pkg/boa"
 	"github.com/GiGurra/bookeeper/pkg/config"
+	"github.com/GiGurra/bookeeper/pkg/domain"
 	"github.com/GiGurra/bookeeper/pkg/gui_tree"
 	"github.com/GiGurra/bookeeper/pkg/modsettingslsx"
 	"github.com/spf13/cobra"
@@ -67,8 +68,8 @@ func StatusCmd() *cobra.Command {
 			gui_tree.AddChild(rootNode, gui_tree.ProfilesN(cfg, "available profiles"))
 
 			bg3DownloadedModsNode := rootNode.AddBranch("available mods")
-			for _, mod := range config.ListAvailableMods(cfg) {
-				gui_tree.AddChild(bg3DownloadedModsNode, gui_tree.ConfigMod(mod))
+			for _, mod := range domain.ListAvailableMods(cfg) {
+				gui_tree.AddChild(bg3DownloadedModsNode, gui_tree.DomainMod(mod, cfg.Verbose.Value()))
 			}
 
 			fmt.Println(rootNode.String())
