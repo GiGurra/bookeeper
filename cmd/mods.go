@@ -8,6 +8,7 @@ import (
 	"github.com/GiGurra/bookeeper/pkg/modsettingslsx"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
+	"strings"
 )
 
 func ModsCmd() *cobra.Command {
@@ -136,12 +137,11 @@ func ValidAvailableModNameAndVersionArgsFunc(cfg *config.BaseConfig) func(cmd *c
 				// replace spaces with \<space>
 				return item
 			}), cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
-		case 1:
-			return lo.Map(modsByName[args[0]], func(item domain.Mod, _ int) string {
+		default:
+			modName := strings.Join(args, " ")
+			return lo.Map(modsByName[modName], func(item domain.Mod, _ int) string {
 				return item.Version64
 			}), cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
-		default:
-			return []string{}, cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
 		}
 	}
 }
@@ -163,12 +163,11 @@ func ValidActiveModNameAndVersionArgsFunc(cfg *config.BaseConfig) func(cmd *cobr
 				// if we have spaces, we need to quote it
 				return item
 			}), cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
-		case 1:
-			return lo.Map(modsByName[args[0]], func(item domain.Mod, _ int) string {
+		default:
+			modName := strings.Join(args, " ")
+			return lo.Map(modsByName[modName], func(item domain.Mod, _ int) string {
 				return item.Version64
 			}), cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
-		default:
-			return []string{}, cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
 		}
 	}
 }
