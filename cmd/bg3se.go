@@ -69,8 +69,9 @@ func Bg3SeInstallCmd() *cobra.Command {
 
 			fmt.Println("bg3se installed successfully to " + config.Bg3binPath(&cfg.Base))
 			fmt.Println("!! Remember to set the command line args in steam for bg3:")
+			cmdStr := "%command%"
 			//goland:noinspection GoPrintFunctions
-			fmt.Println(" WINEDLLOVERRIDES=\"DWrite.dll=n,b\" %command%")
+			fmt.Println(" WINEDLLOVERRIDES=\"DWrite.dll=n,b\" " + cmdStr)
 		},
 	}.ToCmd()
 }

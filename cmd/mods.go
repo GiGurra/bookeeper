@@ -107,6 +107,8 @@ func ModsDeactivateAllCmd() *cobra.Command {
 			})
 			modXml.SetMods(newModList)
 
+			newXml := modXml.ToXML()
+			fmt.Printf("new xml: %s\n", newXml)
 		},
 	}.ToCmd()
 }

@@ -112,10 +112,22 @@ func (n *XmlCategories) SetXmlMods(newMods []XmlMod) {
 }
 
 func (n *XmlCategories) SetXmlModOrder(newOrder []XmlMod) {
+	found := false
 	for i, child := range n.Children {
 		if child.ID == "ModOrder" {
 			n.Children[i].Children = newOrder
+			found = true
 		}
+	}
+
+	if !found {
+		newChildren := make([]XmlCategory, 0, len(n.Children)+1)
+		newChildren = append(newChildren, XmlCategory{
+			ID:       "ModOrder",
+			Children: newOrder,
+		})
+		newChildren = append(newChildren, n.Children...)
+		n.Children = newChildren
 	}
 }
 
