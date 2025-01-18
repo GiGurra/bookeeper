@@ -35,6 +35,7 @@ func StatusCmd() *cobra.Command {
 			gui_tree.AddKV(bg3PathsNode, "install", config.Bg3Path(cfg))
 			gui_tree.AddKV(bg3PathsNode, "bin", config.Bg3binPath(cfg))
 			gui_tree.AddKV(bg3PathsNode, "userdata", config.Bg3UserDataDir(cfg))
+			gui_tree.AddKV(bg3PathsNode, "mod dir", config.Bg3ModInstallDir(cfg))
 			gui_tree.MakeChildrenSameKeyLen(bg3PathsNode)
 
 			bg3SeNode := gui_tree.AddChildStr(rootNode, "bg3se status")
