@@ -249,6 +249,33 @@ func InspectModZip(
 		panic(fmt.Errorf("failed to unmarshal json: %w", err))
 	}
 
+	if len(ModData.Mods) == 0 {
+		panic("No mods found in zip")
+	}
+
+	// add missing data
+	for i := range ModData.Mods {
+		modPtr := &ModData.Mods[i]
+		if modPtr.Name == "GustavDev" {
+			continue // mod references the game itself, dont change this
+		}
+		if modPtr.UUID == "" {
+			panic(fmt.Errorf("UUID missing in mod: %+v", modPtr))
+		}
+		if modPtr.Folder == "" {
+			slog.Warn(fmt.Sprintf("Folder missing in mod: %+v, defaulting to UUID", modPtr))
+			modPtr.Folder = modPtr.UUID
+		}
+		if modPtr.Name == "" {
+			slog.Warn(fmt.Sprintf("Name missing in mod: %+v, defaulting to UUID", modPtr))
+			modPtr.Name = modPtr.UUID
+		}
+		if modPtr.Version == "" {
+			slog.Warn(fmt.Sprintf("Version missing in mod: %+v, defaulting to 1", modPtr))
+			modPtr.Version = "1"
+		}
+	}
+
 	return ModData, PakFiles
 }
 
