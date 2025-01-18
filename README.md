@@ -65,6 +65,17 @@ downloaded_mods
 Mods are activated by name and version, by running `bookeeper mods activate <mod-name> <version>`. This will create
 symlinks in the bg3 mod directory to all the `.pak` files in the mod version directory under `downloaded_mods`.
 
+For example like this:
+```bash
+> ll $(bookeeper get bg3-mod-dir)
+total 20K
+lrwxrwxrwx 1 johkjo johkjo  75 jan 19 00:15 5eSpells.pak -> /home/johkjo/.local/share/bookeeper/downloaded_mods/5eSpells/1/5eSpells.pak
+lrwxrwxrwx 1 johkjo johkjo 109 jan 19 00:15 PartyLimitBegone.pak -> '/home/johkjo/.local/share/bookeeper/downloaded_mods/Party Limit Begone/72902018968059904/PartyLimitBegone.pak'
+lrwxrwxrwx 1 johkjo johkjo 107 jan 19 00:15 UnlockLevelCurve.pak -> /home/johkjo/.local/share/bookeeper/downloaded_mods/UnlockLevelCurve/72057594037927962/UnlockLevelCurve.pak
+lrwxrwxrwx 1 johkjo johkjo 161 jan 19 00:15 UnlockLevelCurve_Patch_5eSpells_Improvement.pak -> /home/johkjo/.local/share/bookeeper/downloaded_mods/UnlockLevelCurve_Patch_5eSpells_Improvement/72057594037927960/UnlockLevelCurve_Patch_5eSpells_Improvement.pak
+lrwxrwxrwx 1 johkjo johkjo 135 jan 19 00:15 UnlockLevelCurve_Patch_XP_x0.5.pak -> /home/johkjo/.local/share/bookeeper/downloaded_mods/UnlockLevelCurve_Patch_XP_x0.5/72057594037927960/UnlockLevelCurve_Patch_XP_x0.5.pak
+```
+
 ### CLI help
 
 Experiment yourself. You can navigate the command tree and use `--help` on each level.
