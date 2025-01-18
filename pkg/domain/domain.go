@@ -38,6 +38,27 @@ func MakeModAvailable(cfg *config.BaseConfig, zipFilePath string) {
 	fmt.Printf("Mod %s@%s is now available\n", mod.Name, mod.Version)
 }
 
+func MakeModUnavailable(cfg *config.BaseConfig, modName string, modVersion string) {
+
+	// calculate the mod path
+	modPath := filepath.Join(config.DownloadedModsDir(cfg), modName, modVersion)
+
+	if !config.ExistsDir(modPath) {
+		panic(fmt.Errorf("mod %s@%s is not available", modName, modVersion))
+	}
+
+	// TODO: Ask if mod is in use in some profile (or actively)
+
+	// remove dir
+	err := os.RemoveAll(modPath)
+	if err != nil {
+		panic(fmt.Errorf("failed to remove mod folder: %w", err))
+	}
+
+	// DONE!
+	fmt.Printf("Mod %s@%s is now unavailable\n", modName, modVersion)
+}
+
 func ListAvailableMods(cfg *config.BaseConfig) []Mod {
 	downloadDir := config.DownloadedModsDir(cfg)
 	entries, err := os.ReadDir(downloadDir)
