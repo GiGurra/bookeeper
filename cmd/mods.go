@@ -8,7 +8,6 @@ import (
 	"github.com/GiGurra/bookeeper/pkg/modsettingslsx"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -82,7 +81,7 @@ func ModsActivateCmd() *cobra.Command {
 				os.Exit(1)
 			}
 
-			// Copy .pak files to the Mods dir
+			// Copy or symlink .pak files to the Mods dir
 			srcDir := filepath.Join(config.DownloadedModsDir(&cfg.Base), modToActivate.Name, modToActivate.Version64)
 			trgDir := config.Bg3ModInstallDir(&cfg.Base)
 			entries, err := os.ReadDir(srcDir)
@@ -95,22 +94,31 @@ func ModsActivateCmd() *cobra.Command {
 					srcPath := filepath.Join(srcDir, entry.Name())
 					trgPath := filepath.Join(trgDir, entry.Name())
 
-					func() { // for deferred file close
-						fmt.Printf("copying %s to %s\n", srcPath, trgPath)
-						trgFile, err := os.Create(trgPath)
+					// copy file solution
+					//func() { // for deferred file close
+					//	fmt.Printf("copying %s to %s\n", srcPath, trgPath)
+					//	trgFile, err := os.Create(trgPath)
+					//	if err != nil {
+					//		panic(fmt.Errorf("failed to create file: %w", err))
+					//	}
+					//	defer func() { _ = trgFile.Close() }()
+					//	srcFile, err := os.Open(srcPath)
+					//	if err != nil {
+					//		panic(fmt.Errorf("failed to open file: %w", err))
+					//	}
+					//	defer func() { _ = srcFile.Close() }()
+					//
+					//	_, err = io.Copy(trgFile, srcFile)
+					//	if err != nil {
+					//		panic(fmt.Errorf("failed to copy file: %w", err))
+					//	}
+					//}()
+					// symlink file solution
+					func() {
+						fmt.Printf("symlinking %s to %s\n", srcPath, trgPath)
+						err := os.Symlink(srcPath, trgPath)
 						if err != nil {
-							panic(fmt.Errorf("failed to create file: %w", err))
-						}
-						defer func() { _ = trgFile.Close() }()
-						srcFile, err := os.Open(srcPath)
-						if err != nil {
-							panic(fmt.Errorf("failed to open file: %w", err))
-						}
-						defer func() { _ = srcFile.Close() }()
-
-						_, err = io.Copy(trgFile, srcFile)
-						if err != nil {
-							panic(fmt.Errorf("failed to copy file: %w", err))
+							panic(fmt.Errorf("failed to symlink file: %w", err))
 						}
 					}()
 				}
