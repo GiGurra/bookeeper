@@ -100,21 +100,7 @@ func ModsDeactivateAllCmd() *cobra.Command {
 		Params:      cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
 		Run: func(cmd *cobra.Command, args []string) {
-
-			modsettings := modsettingslsx.Load(cfg)
-			currentMods := domain.ListActiveModsX(modsettings)
-			grouped := lo.GroupBy(currentMods, func(mod domain.Mod) bool {
-				return mod.Name == "GustavDev"
-			})
-			newModList := grouped[true]
-			modsToDeactivate := grouped[false]
-
-			for _, mod := range modsToDeactivate {
-				domain.DeletePakFileLinks(domain.CalculatePakFileLinks(cfg, mod))
-			}
-
-			domain.SetActiveModsInBg3Cfg(modsettings, newModList)
-			domain.StoreModsInBg3Cfg(cfg, modsettings)
+			domain.DeactivateAllMods(cfg)
 		},
 	}.ToCmd()
 }

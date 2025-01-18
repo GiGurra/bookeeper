@@ -414,3 +414,15 @@ func DeactivateMod(
 
 	}
 }
+
+func DeactivateAllMods(
+	c *config.BaseConfig,
+) {
+
+	newModList := lo.Filter(ListActiveMods(c), func(m Mod, _ int) bool {
+		return m.Name == "GustavDev"
+	})
+
+	SetActiveMods(c, newModList)
+
+}
