@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/GiGurra/bookeeper/pkg/config"
 	"io"
-	"log"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -29,7 +28,7 @@ type ModDataEntry struct {
 	Group        string `json:"Group"`
 }
 
-func InspectModZip(
+func InspectModZipUsingTempFolderExtract(
 	zipPath string,
 ) ModData {
 	if !config.ExistsFile(zipPath) {
@@ -64,19 +63,76 @@ func InspectModZip(
 	return modData
 }
 
-func DeflateZipFileToTempFolder(zipPath string) string {
-	// Create a temporary directory
-	tempDir, err := os.MkdirTemp("", "zip_extract_*")
-	if err != nil {
-		log.Fatalf("Failed to create temporary directory: %v", err)
-		return ""
+func InspectModZip(
+	zipPath string,
+) ModData {
+	if !config.ExistsFile(zipPath) {
+		panic(fmt.Errorf("mod zip file not found: %s", zipPath))
 	}
 
 	// Open the zip file
 	reader, err := zip.OpenReader(zipPath)
 	if err != nil {
-		log.Fatalf("Failed to open zip file: %v", err)
-		return ""
+		panic(fmt.Errorf("failed to open zip file: %w", err))
+	}
+	defer func() {
+		err := reader.Close()
+		if err != nil {
+			slog.Error(fmt.Sprintf("Failed to close zip file: %v", err))
+		}
+	}()
+
+	// Extract info.json from the zip archive
+	var foundFile *zip.File
+	for _, file := range reader.File {
+		if file.Name == "info.json" {
+			foundFile = file
+			break
+		}
+	}
+	if foundFile == nil {
+		panic(fmt.Errorf("info.json not found in zip: %s", zipPath))
+	}
+
+	// Open the file in the zip
+	srcFile, err := foundFile.Open()
+	if err != nil {
+		panic(fmt.Errorf("failed to open file in zip: %w", err))
+	}
+	defer func() {
+		err := srcFile.Close()
+		if err != nil {
+			panic(fmt.Errorf("failed to close file in zip: %w", err))
+		}
+	}()
+
+	// Read the contents
+	bs, err := io.ReadAll(srcFile)
+	if err != nil {
+		panic(fmt.Errorf("failed to read file: %w", err))
+	}
+
+	// parse info.json into ModData
+	var modData ModData
+	err = json.Unmarshal(bs, &modData)
+	if err != nil {
+		panic(fmt.Errorf("failed to unmarshal json: %w", err))
+	}
+
+	return modData
+}
+
+func DeflateZipFileToTempFolder(zipPath string) string {
+	// Create a temporary directory
+	tempDir, err := os.MkdirTemp("", "zip_extract_*")
+	if err != nil {
+		panic(fmt.Errorf("failed to create temporary directory: %w", err))
+	}
+
+	// Open the zip file
+	reader, err := zip.OpenReader(zipPath)
+	if err != nil {
+		panic(fmt.Errorf("failed to open zip file: %w", err))
 	}
 	defer func(reader *zip.ReadCloser) {
 		err := reader.Close()
