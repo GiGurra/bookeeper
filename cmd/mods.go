@@ -8,7 +8,9 @@ import (
 	"github.com/GiGurra/bookeeper/pkg/modsettingslsx"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
+	"io"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -54,16 +56,78 @@ func ModsActivateCmd() *cobra.Command {
 				os.Exit(1)
 			}
 
+			modXml := modsettingslsx.Load(&cfg.Base)
+			modsList := modXml.GetMods()
+
+			activeModsLkup := lo.GroupBy(modsList, func(mod domain.Mod) string {
+				return mod.Name
+			})
+
 			availableMods := domain.ListAvailableMods(&cfg.Base)
+			var modToActivate domain.Mod
 			for _, mod := range availableMods {
 				if mod.Name == cfg.ModName.Value() && mod.Version64 == cfg.ModVersion.Value() {
 					fmt.Printf("activating mod %s, v %s\n", mod.Name, mod.Version64)
-					return
+					if activeModsLkup[mod.Name] != nil {
+						panic(fmt.Errorf("mod %s already active", mod.Name))
+					}
+					modsList = append(modsList, mod)
+					modToActivate = mod
+					break
 				}
 			}
 
-			panic(fmt.Errorf("mod %s, v %s not found", cfg.ModName.Value(), cfg.ModVersion.Value()))
+			if modToActivate.Name == "" {
+				fmt.Printf("mod %s, v %s not found\n", cfg.ModName.Value(), cfg.ModVersion.Value())
+				os.Exit(1)
+			}
 
+			// Copy .pak files to the Mods dir
+			srcDir := filepath.Join(config.DownloadedModsDir(&cfg.Base), modToActivate.Name, modToActivate.Version64)
+			trgDir := config.Bg3ModInstallDir(&cfg.Base)
+			entries, err := os.ReadDir(srcDir)
+			if err != nil {
+				panic(fmt.Errorf("failed to read dir: %w", err))
+			}
+			for _, entry := range entries {
+				if strings.HasSuffix(strings.ToLower(entry.Name()), ".pak") {
+					// Copy file from src to
+					srcPath := filepath.Join(srcDir, entry.Name())
+					trgPath := filepath.Join(trgDir, entry.Name())
+
+					func() { // for deferred file close
+						fmt.Printf("copying %s to %s\n", srcPath, trgPath)
+						trgFile, err := os.Create(trgPath)
+						if err != nil {
+							panic(fmt.Errorf("failed to create file: %w", err))
+						}
+						defer func() { _ = trgFile.Close() }()
+						srcFile, err := os.Open(srcPath)
+						if err != nil {
+							panic(fmt.Errorf("failed to open file: %w", err))
+						}
+						defer func() { _ = srcFile.Close() }()
+
+						_, err = io.Copy(trgFile, srcFile)
+						if err != nil {
+							panic(fmt.Errorf("failed to copy file: %w", err))
+						}
+					}()
+				}
+			}
+
+			modXml.SetMods(modsList)
+
+			newXml := modXml.ToXML()
+			fmt.Printf("new xml: \n%s\n", newXml)
+
+			xmlSavePath := config.Bg3ModsettingsFilePath(&cfg.Base)
+			fmt.Printf("saving to %s\n", xmlSavePath)
+
+			err = os.WriteFile(xmlSavePath, []byte(newXml), 0644)
+			if err != nil {
+				panic(fmt.Errorf("failed to write file: %w", err))
+			}
 		},
 	}.ToCmd()
 }
