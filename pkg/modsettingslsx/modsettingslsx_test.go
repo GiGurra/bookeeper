@@ -54,6 +54,42 @@ func TestNode_GetMods(t *testing.T) {
 
 }
 
+func TestXmlCategories_GetMods(t *testing.T) {
+	var modSettingsLSX XmlRoot
+	err := xml.Unmarshal([]byte(srcXmlData), &modSettingsLSX)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Access Mods
+	mods := modSettingsLSX.Region.Root.GetMods()
+
+	if len(mods) != 2 {
+		t.Fatalf("expected 2 mods, got %d", len(mods))
+	}
+
+	expect := []Mod{
+		{
+			Folder:    "GustavDev",
+			MD5:       "41a80562831251b58df743c05a7af21b",
+			Name:      "GustavDev",
+			UUID:      "28ac9ce2-2aba-8cda-b3b5-6e922f71b6b8",
+			Version64: "144396877804629717",
+		},
+		{
+			Folder:    "BasketEquipmentSFW",
+			MD5:       "",
+			Name:      "BasketEquipmentSFW",
+			UUID:      "b200f917-43ec-45d9-9dff-ac6191d62388",
+			Version64: "144115196665790673",
+		},
+	}
+
+	if diff := cmp.Diff(expect, mods); diff != "" {
+		t.Fatalf("mismatch (-want +got):\n%s", diff)
+	}
+}
+
 var srcXmlData = `<?xml version="1.0" encoding="UTF-8"?>
 <save>
   <version major="4" minor="0" revision="8" build="2" />

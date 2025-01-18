@@ -76,6 +76,27 @@ func (n *XmlCategories) GetXmlMods() []XmlMod {
 	return nil
 }
 
+func (n *XmlCategories) GetMods() []Mod {
+	result := make([]Mod, 0)
+	xmlMods := n.GetXmlMods()
+	order := n.GetXmlModOrder()
+	// order the xmlMods according to the order in the ModOrder
+	for _, mod := range order {
+		for _, xmlMod := range xmlMods {
+			if mod.GetXmlAttributeValue("UUID") == xmlMod.GetXmlAttributeValue("UUID") {
+				result = append(result, Mod{
+					Folder:    xmlMod.GetXmlAttributeValue("Folder"),
+					MD5:       xmlMod.GetXmlAttributeValue("MD5"),
+					Name:      xmlMod.GetXmlAttributeValue("Name"),
+					UUID:      xmlMod.GetXmlAttributeValue("UUID"),
+					Version64: xmlMod.GetXmlAttributeValue("Version64"),
+				})
+			}
+		}
+	}
+	return result
+}
+
 func (n *XmlMod) GetXmlAttributeValue(id string) string {
 	for _, attr := range n.Attributes {
 		if attr.ID == id {
@@ -86,6 +107,11 @@ func (n *XmlMod) GetXmlAttributeValue(id string) string {
 }
 
 type Mod struct {
+	Folder    string
+	MD5       string
+	Name      string
+	UUID      string
+	Version64 string
 }
 
 func (n *XmlRoot) WithNewModSet() []XmlMod {
