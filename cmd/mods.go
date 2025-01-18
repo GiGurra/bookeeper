@@ -108,10 +108,10 @@ func ModsDeactivateAllCmd() *cobra.Command {
 			modXml.SetMods(newModList)
 
 			newXml := modXml.ToXML()
-			//fmt.Printf("new xml: \n%s\n", newXml)
+			fmt.Printf("new xml: \n%s\n", newXml)
 
 			xmlSavePath := config.Bg3ModsettingsFilePath(cfg)
-			//fmt.Printf("saving to %s\n", xmlSavePath)
+			fmt.Printf("saving to %s\n", xmlSavePath)
 
 			err := os.WriteFile(xmlSavePath, []byte(newXml), 0644)
 			if err != nil {
