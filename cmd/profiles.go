@@ -43,8 +43,7 @@ func ProfilesLoadCmd() *cobra.Command {
 		ValidArgsFunc: ValidAvailableProfileNameAndVersionArgsFunc(&cfg.Base),
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Printf("loading profile %s\n", cfg.ProfileName.Value())
-			//domain.LoadProfile(&cfg.Base, cfg.ProfileName.Value())
-			panic("not implemented")
+			domain.LoadProfile(&cfg.Base, cfg.ProfileName.Value())
 		},
 	}.ToCmd()
 }
@@ -108,8 +107,7 @@ func ProfilesDeleteCmd() *cobra.Command {
 		ValidArgsFunc: ValidAvailableProfileNameAndVersionArgsFunc(&cfg.Base),
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Printf("deleting profile %s\n", cfg.ProfileName.Value())
-			//domain.DeleteProfile(&cfg.Base, cfg.ProfileName.Value())
-			panic("not implemented")
+			domain.DeleteProfile(&cfg.Base, cfg.ProfileName.Value())
 		},
 	}.ToCmd()
 }

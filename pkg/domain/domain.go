@@ -293,9 +293,14 @@ func SetActiveMods(cfg *config.BaseConfig, newModList []Mod) {
 	}
 
 	oldModList := ListActiveMods(cfg)
+	gustavDevMod, found := lo.Find(oldModList, func(m Mod) bool { return m.Name == "GustavDev" })
+	if !found {
+		panic("GustavDev not found in oldModList")
+	}
 
 	if !lo.ContainsBy(newModList, func(m Mod) bool { return m.Name == "GustavDev" }) {
-		common.ExitWithUserError("Not allowed to deactivate GustavDev [newModList]")
+		// add GustavDev to the list
+		newModList = append([]Mod{gustavDevMod}, newModList...)
 	}
 
 	if !lo.ContainsBy(oldModList, func(m Mod) bool { return m.Name == "GustavDev" }) {
@@ -488,6 +493,24 @@ func ListProfileNames(cfg *config.BaseConfig) []string {
 
 }
 
+func GetProfile(c *config.BaseConfig, profileName string) *Profile {
+	profileDir := filepath.Join(config.ProfilesDir(c), profileName)
+	profileFilePath := filepath.Join(profileDir, "profile.json")
+	if !config.ExistsFile(profileFilePath) {
+		return nil
+	}
+	bs, err := os.ReadFile(profileFilePath)
+	if err != nil {
+		panic(fmt.Errorf("failed to read file %s: %w", profileFilePath, err))
+	}
+	var profile Profile
+	err = json.Unmarshal(bs, &profile)
+	if err != nil {
+		panic(fmt.Errorf("failed to unmarshal profile file %s: %w", profileFilePath, err))
+	}
+	return &profile
+}
+
 func ListProfiles(cfg *config.BaseConfig) []Profile {
 
 	profilesDir := config.ProfilesDir(cfg)
@@ -499,23 +522,22 @@ func ListProfiles(cfg *config.BaseConfig) []Profile {
 	var result []Profile
 	for _, entry := range entries {
 		if entry.IsDir() {
-			profileDir := filepath.Join(profilesDir, entry.Name())
-			profileFilePath := filepath.Join(profileDir, "profile.json")
-			if config.ExistsFile(profileFilePath) {
-				bs, err := os.ReadFile(profileFilePath)
-				if err != nil {
-					panic(fmt.Errorf("failed to read file %s: %w", profileFilePath, err))
-				}
-				var profile Profile
-				err = json.Unmarshal(bs, &profile)
-				if err != nil {
-					panic(fmt.Errorf("failed to unmarshal profile file %s: %w", profileFilePath, err))
-				}
-				result = append(result, profile)
+			profile := GetProfile(cfg, entry.Name())
+			if profile != nil {
+				result = append(result, *profile)
 			}
 		}
 	}
 
 	return result
 
+}
+
+func LoadProfile(c *config.BaseConfig, profileName string) {
+	profile := GetProfile(c, profileName)
+	if profile == nil {
+		common.ExitWithUserError(fmt.Sprintf("profile %s not found", profileName))
+	} else {
+		SetActiveMods(c, profile.Mods)
+	}
 }
