@@ -42,6 +42,7 @@ func Bg3SeInstallCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 
 			//Norbyte/bg3se
+			fmt.Println("Checking for latest bg3se release at github.com/Norbyte/bg3se/releases/latest")
 			release := github.GetLatestRelease("Norbyte", "bg3se")
 			if len(release.Assets) == 0 {
 				panic("no assets found at github.com/Norbyte/bg3se/releases/latest")

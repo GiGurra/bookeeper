@@ -70,6 +70,9 @@ type Asset struct {
 }
 
 func (a Asset) DownloadToDir(dir string) string {
+
+	fmt.Println("Downloading asset " + a.BrowserDownloadURL)
+
 	// download the asset to the specified directory
 	resp, err := http.Get(a.BrowserDownloadURL)
 	if err != nil {
