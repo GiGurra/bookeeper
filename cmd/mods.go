@@ -4,6 +4,7 @@ import (
 	"github.com/GiGurra/boa/pkg/boa"
 	"github.com/GiGurra/bookeeper/pkg/config"
 	"github.com/GiGurra/bookeeper/pkg/domain"
+	"github.com/GiGurra/bookeeper/pkg/modsettingslsx"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
 	"strings"
@@ -19,8 +20,48 @@ func ModsCmd() *cobra.Command {
 		Params:      cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
 		SubCommands: []*cobra.Command{
+			ModsActivateCmd(),
+			ModsDeactivateCmd(),
 			ModsMakeAvailableCmd(),
 			ModsMakeUnavailableCmd(),
+		},
+	}.ToCmd()
+}
+
+type ModsActivateCmdConfig struct {
+	Base       config.BaseConfig
+	ModName    boa.Required[string] `positional:"true" description:"mod to activate"`
+	ModVersion boa.Required[string] `positional:"true" description:"version of the mod to activate"`
+}
+
+func ModsActivateCmd() *cobra.Command {
+
+	cfg := &ModsActivateCmdConfig{}
+
+	return boa.Wrap{
+		Use:           "activate",
+		Short:         "activate a specific mod immediately",
+		Params:        cfg,
+		ParamEnrich:   boa.ParamEnricherDefault,
+		ValidArgsFunc: ValidAvailableModNameAndVersionArgsFunc(&cfg.Base),
+		Run: func(cmd *cobra.Command, args []string) {
+			panic("not implemented")
+		},
+	}.ToCmd()
+}
+
+func ModsDeactivateCmd() *cobra.Command {
+
+	cfg := &ModsActivateCmdConfig{}
+
+	return boa.Wrap{
+		Use:           "deactivate",
+		Short:         "deactivate a specific mod immediately",
+		Params:        cfg,
+		ParamEnrich:   boa.ParamEnricherDefault,
+		ValidArgsFunc: ValidActiveModNameAndVersionArgsFunc(&cfg.Base),
+		Run: func(cmd *cobra.Command, args []string) {
+			panic("not implemented")
 		},
 	}.ToCmd()
 }
@@ -56,32 +97,62 @@ func ModsMakeUnavailableCmd() *cobra.Command {
 	cfg := &ModsMakeUnavailableCmdConfig{}
 
 	return boa.Wrap{
-		Use:         "make-unavailable",
-		Short:       "make a mod unavailable",
-		Params:      cfg,
-		ParamEnrich: boa.ParamEnricherDefault,
-		ValidArgsFunc: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-
-			modsByName := lo.GroupBy(domain.ListAvailableMods(&cfg.Base), func(item domain.Mod) string {
-				return item.Name
-			})
-
-			switch len(args) {
-			case 0:
-				return lo.Map(lo.Keys(modsByName), func(item string, _ int) string {
-					// replace spaces with \<space>
-					return strings.ReplaceAll(item, " ", "\\ ")
-				}), cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
-			case 1:
-				return lo.Map(modsByName[args[0]], func(item domain.Mod, _ int) string {
-					return item.Version64
-				}), cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
-			default:
-				return []string{}, cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
-			}
-		},
+		Use:           "make-unavailable",
+		Short:         "make a mod unavailable",
+		Params:        cfg,
+		ParamEnrich:   boa.ParamEnricherDefault,
+		ValidArgsFunc: ValidAvailableModNameAndVersionArgsFunc(&cfg.Base),
 		Run: func(cmd *cobra.Command, args []string) {
 			domain.MakeModUnavailable(&cfg.Base, cfg.ModName.Value(), cfg.ModVersion.Value())
 		},
 	}.ToCmd()
+}
+
+func ValidAvailableModNameAndVersionArgsFunc(cfg *config.BaseConfig) func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+
+		modsByName := lo.GroupBy(domain.ListAvailableMods(cfg), func(item domain.Mod) string {
+			return item.Name
+		})
+
+		switch len(args) {
+		case 0:
+			return lo.Map(lo.Keys(modsByName), func(item string, _ int) string {
+				// replace spaces with \<space>
+				return strings.ReplaceAll(item, " ", "\\ ")
+			}), cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
+		case 1:
+			return lo.Map(modsByName[args[0]], func(item domain.Mod, _ int) string {
+				return item.Version64
+			}), cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
+		default:
+			return []string{}, cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
+		}
+	}
+}
+
+func ValidActiveModNameAndVersionArgsFunc(cfg *config.BaseConfig) func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+
+		modXml := modsettingslsx.Load(cfg)
+
+		modsByName := lo.GroupBy(modXml.GetMods(), func(item domain.Mod) string {
+			return item.Name
+		})
+		delete(modsByName, "GustavDev")
+
+		switch len(args) {
+		case 0:
+			return lo.Map(lo.Keys(modsByName), func(item string, _ int) string {
+				// replace spaces with \<space>
+				return strings.ReplaceAll(item, " ", "\\ ")
+			}), cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
+		case 1:
+			return lo.Map(modsByName[args[0]], func(item domain.Mod, _ int) string {
+				return item.Version64
+			}), cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
+		default:
+			return []string{}, cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
+		}
+	}
 }
