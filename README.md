@@ -66,6 +66,7 @@ Mods are activated by name and version, by running `bookeeper mods activate <mod
 symlinks in the bg3 mod directory to all the `.pak` files in the mod version directory under `downloaded_mods`.
 
 For example like this:
+
 ```bash
 > ll $(bookeeper get bg3-mod-dir)
 total 20K
@@ -158,6 +159,8 @@ Sorry :D, this might be improved later, if I (or someone else) continues working
 The easiest solution right now is to just create your load order once, with
 `bookeeper mods activate <mod-name> <version>`, and then save it to a profile with
 `bookeeper profiles save <profile-name>`. Then you can just load that profile whenever.
+
+You can also just manually reorder the data in the stored profile json files in `~/.local/share/bookeeper/profiles`.
 
 ## Configuration
 
