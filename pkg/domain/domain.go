@@ -4,9 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/GiGurra/bookeeper/pkg/config"
+	"github.com/GiGurra/bookeeper/pkg/modsettingslsx"
 	"github.com/GiGurra/bookeeper/pkg/modzip"
+	"github.com/samber/lo"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type Mod struct {
@@ -113,4 +116,156 @@ func FromZipData(zipData modzip.ModData) Mod {
 		UUID:      mod.UUID,
 		Version64: mod.Version,
 	}
+}
+
+type PakFileLink struct {
+	PathInStorage   string
+	PathInModFolder string
+}
+
+func CalculatePakFileLinks(
+	cfg *config.BaseConfig,
+	mod Mod,
+) []PakFileLink {
+
+	srcDir := filepath.Join(config.DownloadedModsDir(cfg), mod.Name, mod.Version64)
+	trgDir := config.Bg3ModInstallDir(cfg)
+
+	if !config.ExistsDir(srcDir) {
+		panic(fmt.Errorf("mod dir %s does not exist. Cannot calculate pak file links for mod activation/deactivation", srcDir))
+	}
+
+	entries, err := os.ReadDir(srcDir)
+	if err != nil {
+		panic(fmt.Errorf("failed to read dir: %w", err))
+	}
+
+	var result []PakFileLink
+	for _, entry := range entries {
+		if strings.HasSuffix(strings.ToLower(entry.Name()), ".pak") {
+			srcPath := filepath.Join(srcDir, entry.Name())
+			trgPath := filepath.Join(trgDir, entry.Name())
+			result = append(result, PakFileLink{
+				PathInStorage:   srcPath,
+				PathInModFolder: trgPath,
+			})
+		}
+	}
+
+	return result
+}
+
+func SetupPakFileLinks(
+	links []PakFileLink,
+) {
+	for _, link := range links {
+		fmt.Printf("symlinking %s -> %s\n", link.PathInModFolder, link.PathInStorage)
+		err := os.Symlink(link.PathInStorage, link.PathInModFolder)
+		if err != nil {
+			panic(fmt.Errorf("failed to symlink file: %w", err))
+		}
+	}
+}
+
+func DeletePakFileLinks(
+	links []PakFileLink,
+) {
+	for _, link := range links {
+		fmt.Printf("deleting %s\n", link.PathInModFolder)
+		err := os.Remove(link.PathInModFolder)
+		if err != nil {
+			panic(fmt.Errorf("failed to remove file: %w", err))
+		}
+	}
+}
+
+func StoreModsInBg3Cfg(
+	cfg *config.BaseConfig,
+	modsettings *modsettingslsx.ModSettingsXml,
+) {
+	newXml := modsettings.ToXML()
+	if cfg.Verbose.Value() {
+		fmt.Printf("new xml: \n%s\n", newXml)
+	}
+
+	xmlSavePath := config.Bg3ModsettingsFilePath(cfg)
+	if cfg.Verbose.Value() {
+		fmt.Printf("saving to %s\n", xmlSavePath)
+	}
+
+	err := os.WriteFile(xmlSavePath, []byte(newXml), 0644)
+	if err != nil {
+		panic(fmt.Errorf("failed to write file: %w", err))
+	}
+}
+
+///////////////// Bridge to modsettingslsx
+
+func ListActiveMods(n *modsettingslsx.ModSettingsXml) []Mod {
+	return listActiveModsC(&n.Region.Categories)
+}
+
+func listActiveModsC(n *modsettingslsx.XmlCategories) []Mod {
+	result := make([]Mod, 0)
+	xmlMods := n.GetXmlMods()
+	order := n.GetXmlModOrder()
+	// order the xmlMods according to the order in the ModOrder
+	handled := make(map[string]bool)
+	for _, mod := range order {
+		for _, xmlMod := range xmlMods {
+			if mod.GetXmlAttributeValue("UUID") == xmlMod.GetXmlAttributeValue("UUID") {
+				result = append(result, Mod{
+					Folder:        xmlMod.GetXmlAttributeValue("Folder"),
+					MD5:           xmlMod.GetXmlAttributeValue("MD5"),
+					Name:          xmlMod.GetXmlAttributeValue("Name"),
+					PublishHandle: xmlMod.GetXmlAttributeValue("PublishHandle"),
+					UUID:          xmlMod.GetXmlAttributeValue("UUID"),
+					Version64:     xmlMod.GetXmlAttributeValue("Version64"),
+				})
+				handled[mod.GetXmlAttributeValue("UUID")] = true
+			}
+		}
+	}
+	for _, xmlMod := range xmlMods {
+		if _, ok := handled[xmlMod.GetXmlAttributeValue("UUID")]; !ok {
+			result = append(result, Mod{
+				Folder:        xmlMod.GetXmlAttributeValue("Folder"),
+				MD5:           xmlMod.GetXmlAttributeValue("MD5"),
+				Name:          xmlMod.GetXmlAttributeValue("Name"),
+				PublishHandle: xmlMod.GetXmlAttributeValue("PublishHandle"),
+				UUID:          xmlMod.GetXmlAttributeValue("UUID"),
+				Version64:     xmlMod.GetXmlAttributeValue("Version64"),
+			})
+		}
+	}
+	return result
+}
+
+func SetActiveModsInBg3Cfg(n *modsettingslsx.ModSettingsXml, mods []Mod) {
+
+	xmlMods := lo.Map(mods, func(mod Mod, _ int) modsettingslsx.XmlMod {
+		return modsettingslsx.XmlMod{
+			ID: "ModuleShortDesc",
+			Attributes: []modsettingslsx.XmlAttribute{
+				{ID: "Folder", Value: mod.Folder, Type: "LSString"},
+				{ID: "MD5", Value: mod.MD5, Type: "LSString"},
+				{ID: "Name", Value: mod.Name, Type: "LSString"},
+				{ID: "PublishHandle", Value: mod.PublishHandle, Type: "uint64"},
+				{ID: "UUID", Value: mod.UUID, Type: "guid"},
+				{ID: "Version64", Value: mod.Version64, Type: "int64"},
+			},
+		}
+	})
+
+	xmlModOrder := lo.Map(mods, func(mod Mod, _ int) modsettingslsx.XmlMod {
+		return modsettingslsx.XmlMod{
+			ID: "Module",
+			Attributes: []modsettingslsx.XmlAttribute{
+				{ID: "UUID", Value: mod.UUID, Type: "FixedString"},
+			},
+		}
+	})
+
+	n.Region.Categories.SetXmlMods(xmlMods)
+	n.Region.Categories.SetXmlModOrder(xmlModOrder)
 }

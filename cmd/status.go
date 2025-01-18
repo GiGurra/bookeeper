@@ -54,7 +54,7 @@ func StatusCmd() *cobra.Command {
 
 			modXml := modsettingslsx.Load(cfg)
 			bg3ActiveModsNode := gui_tree.AddChildStr(rootNode, "bg3 active mods")
-			for _, mod := range modXml.GetMods() {
+			for _, mod := range domain.ListActiveMods(modXml) {
 				gui_tree.AddChild(bg3ActiveModsNode, gui_tree.DomainMod(mod, cfg.Verbose.Value()))
 				//gui_tree.AddKV(bg3ActiveModsNode, mod.Name, fmt.Sprintf("%s, v%s", mod.UUID, mod.Version64))
 			}
