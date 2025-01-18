@@ -6,7 +6,6 @@ import (
 	"github.com/GiGurra/bookeeper/pkg/common"
 	"github.com/GiGurra/bookeeper/pkg/config"
 	"github.com/GiGurra/bookeeper/pkg/domain"
-	"github.com/GiGurra/bookeeper/pkg/modsettingslsx"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
 	"strings"
@@ -43,7 +42,7 @@ func ModsActivateCmd() *cobra.Command {
 
 	return boa.Wrap{
 		Use:           "activate",
-		Short:         "activate a specific mod immediately",
+		Short:         "activate a specific mod",
 		Params:        cfg,
 		ParamEnrich:   boa.ParamEnricherDefault,
 		ValidArgsFunc: ValidAvailableModNameAndVersionArgsFunc(&cfg.Base),
@@ -73,7 +72,7 @@ func ModsDeactivateCmd() *cobra.Command {
 
 	return boa.Wrap{
 		Use:           "deactivate",
-		Short:         "deactivate a specific mod immediately",
+		Short:         "deactivate a specific mod",
 		Params:        cfg,
 		ParamEnrich:   boa.ParamEnricherDefault,
 		ValidArgsFunc: ValidActiveModNameAndVersionArgsFunc(&cfg.Base),
@@ -96,7 +95,7 @@ func ModsDeactivateAllCmd() *cobra.Command {
 
 	return boa.Wrap{
 		Use:         "deactivate-all",
-		Short:       "deactivate all active mods immediately",
+		Short:       "deactivate all active mods",
 		Params:      cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
 		Run: func(cmd *cobra.Command, args []string) {
@@ -169,9 +168,7 @@ func ValidAvailableModNameAndVersionArgsFunc(cfg *config.BaseConfig) func(cmd *c
 func ValidActiveModNameAndVersionArgsFunc(cfg *config.BaseConfig) func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	return func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 
-		modXml := modsettingslsx.Load(cfg)
-
-		modsByName := lo.GroupBy(domain.ListActiveModsX(modXml), func(item domain.Mod) string {
+		modsByName := lo.GroupBy(domain.ListActiveMods(cfg), func(item domain.Mod) string {
 			return item.Name
 		})
 		delete(modsByName, "GustavDev")
