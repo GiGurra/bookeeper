@@ -92,14 +92,28 @@ func ModsDeactivateCmd() *cobra.Command {
 			}
 
 			modXml := modsettingslsx.Load(&cfg.Base)
-			for _, mod := range modXml.GetMods() {
-				if mod.Name == cfg.ModName.Value() && mod.Version64 == cfg.ModVersion.Value() {
-					fmt.Printf("deactivating mod %s, v %s\n", mod.Name, mod.Version64)
-					return
-				}
+			modsBefore := modXml.GetMods()
+			modsAfter := lo.Filter(modsBefore, func(mod domain.Mod, _ int) bool {
+				return mod.Name != cfg.ModName.Value() || mod.Version64 != cfg.ModVersion.Value()
+			})
+
+			if len(modsBefore) == len(modsAfter) {
+				fmt.Printf("mod %s, v %s not found\n", cfg.ModName.Value(), cfg.ModVersion.Value())
+				os.Exit(1)
 			}
 
-			panic(fmt.Errorf("mod %s, v %s not found", cfg.ModName.Value(), cfg.ModVersion.Value()))
+			modXml.SetMods(modsAfter)
+
+			newXml := modXml.ToXML()
+			fmt.Printf("new xml: \n%s\n", newXml)
+
+			xmlSavePath := config.Bg3ModsettingsFilePath(&cfg.Base)
+			fmt.Printf("saving to %s\n", xmlSavePath)
+
+			err := os.WriteFile(xmlSavePath, []byte(newXml), 0644)
+			if err != nil {
+				panic(fmt.Errorf("failed to write file: %w", err))
+			}
 		},
 	}.ToCmd()
 }
