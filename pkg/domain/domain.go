@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/GiGurra/bookeeper/pkg/config"
 	"github.com/GiGurra/bookeeper/pkg/modzip"
@@ -32,7 +33,18 @@ func MakeModAvailable(cfg *config.BaseConfig, zipFilePath string) {
 	}
 
 	// copy the pak files
-	modzip.ExtractSpecificFilesFromZip(zipFilePath, append(pakFiles, "info.json"), modPath)
+	modzip.ExtractSpecificFilesFromZip(zipFilePath, append(pakFiles), modPath)
+
+	// write an info.json file
+	bsToWrite, err := json.MarshalIndent(modData, "", "  ")
+	if err != nil {
+		panic(fmt.Errorf("failed to marshal modData: %w", err))
+	}
+	infoJsonPath := filepath.Join(modPath, "info.json")
+	err = os.WriteFile(infoJsonPath, bsToWrite, os.ModePerm)
+	if err != nil {
+		panic(fmt.Errorf("failed to write info.json: %w", err))
+	}
 
 	// DONE!
 	fmt.Printf("Mod %s@%s is now available\n", mod.Name, mod.Version)
