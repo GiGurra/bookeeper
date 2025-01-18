@@ -6,7 +6,6 @@ import (
 	"github.com/GiGurra/bookeeper/pkg/config"
 	"github.com/GiGurra/bookeeper/pkg/domain"
 	"github.com/GiGurra/bookeeper/pkg/gui_tree"
-	"github.com/GiGurra/bookeeper/pkg/modsettingslsx"
 	"github.com/spf13/cobra"
 	"github.com/xlab/treeprint"
 	"strconv"
@@ -52,9 +51,8 @@ func StatusCmd() *cobra.Command {
 			gui_tree.AddKV(userdataNode, "modsettings.lsx", config.Bg3UserdataModsettingsFilePath(cfg))
 			gui_tree.MakeChildrenSameKeyLen(bg3PathsNode)
 
-			modXml := modsettingslsx.Load(cfg)
 			bg3ActiveModsNode := gui_tree.AddChildStr(rootNode, "bg3 active mods")
-			for _, mod := range domain.ListActiveMods(modXml) {
+			for _, mod := range domain.ListActiveMods(cfg) {
 				gui_tree.AddChild(bg3ActiveModsNode, gui_tree.DomainMod(mod, cfg.Verbose.Value()))
 				//gui_tree.AddKV(bg3ActiveModsNode, mod.Name, fmt.Sprintf("%s, v%s", mod.UUID, mod.Version64))
 			}

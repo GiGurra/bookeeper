@@ -16,7 +16,7 @@ func TestXmlCategories_GetMods(t *testing.T) {
 	}
 
 	// Access Mods
-	mods := ListActiveMods(&modSettingsLSX)
+	mods := ListActiveModsX(&modSettingsLSX)
 
 	if len(mods) != 2 {
 		t.Fatalf("expected 2 mods, got %d", len(mods))
@@ -46,7 +46,7 @@ func TestXmlCategories_GetMods(t *testing.T) {
 	// reverse order
 	SetActiveModsInBg3Cfg(&modSettingsLSX, []Mod{mods[1], mods[0]})
 
-	actual := ListActiveMods(&modSettingsLSX)
+	actual := ListActiveModsX(&modSettingsLSX)
 	expect = []Mod{mods[1], mods[0]}
 
 	if diff := cmp.Diff(expect, actual); diff != "" {
@@ -57,7 +57,7 @@ func TestXmlCategories_GetMods(t *testing.T) {
 
 func TestXmlRoot_GetMods_largeDataSet(t *testing.T) {
 	modSettingsXml := modsettingslsx.NewModSettingsXmlFromFile("testdata/modsettings.lsx")
-	mods := ListActiveMods(modSettingsXml)
+	mods := ListActiveModsX(modSettingsXml)
 
 	expect := []Mod{
 		{

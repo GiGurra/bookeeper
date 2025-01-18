@@ -55,28 +55,8 @@ func ModsActivateCmd() *cobra.Command {
 				common.ExitWithUserError("Not allowed to activate GustavDev")
 			}
 
-			modsettings := modsettingslsx.Load(&cfg.Base)
+			domain.ActivateMod(&cfg.Base, cfg.ModName.Value(), cfg.ModVersion.Value())
 
-			activeMods := domain.ListActiveMods(modsettings)
-			availableMods := domain.ListAvailableMods(&cfg.Base)
-			mod, found := lo.Find(availableMods, func(mod domain.Mod) bool {
-				return mod.Name == cfg.ModName.Value() && mod.Version64 == cfg.ModVersion.Value()
-			})
-			if !found {
-				common.ExitWithUserError(fmt.Sprintf("mod %s, v %s not found", cfg.ModName.Value(), cfg.ModVersion.Value()))
-			}
-
-			if lo.ContainsBy(activeMods, func(m domain.Mod) bool { return m.Name == cfg.ModName.Value() }) {
-				common.ExitWithUserError(fmt.Sprintf("a mod with name %s is already active", cfg.ModName.Value()))
-			}
-
-			// First we must copy|symlink the required mod pak files
-			domain.SetupPakFileLinks(domain.CalculatePakFileLinks(&cfg.Base, mod))
-
-			// Then we must update the modsettings file
-			activeMods = append(activeMods, mod)
-			domain.SetActiveModsInBg3Cfg(modsettings, activeMods)
-			domain.StoreModsInBg3Cfg(&cfg.Base, modsettings)
 		},
 	}.ToCmd()
 }
@@ -105,25 +85,7 @@ func ModsDeactivateCmd() *cobra.Command {
 				common.ExitWithUserError("Not allowed to deactivate GustavDev")
 			}
 
-			modsettings := modsettingslsx.Load(&cfg.Base)
-
-			activeMods := domain.ListActiveMods(modsettings)
-			mod, iMod, found := lo.FindIndexOf(activeMods, func(mod domain.Mod) bool {
-				return mod.Name == cfg.ModName.Value() && mod.Version64 == cfg.ModVersion.Value()
-			})
-			if !found {
-				common.ExitWithUserError(fmt.Sprintf("mod %s, v %s not active, nothing to deactivate", cfg.ModName.Value(), cfg.ModVersion.Value()))
-			}
-
-			// Remove the mod from the active mods list
-			activeMods = append(activeMods[:iMod], activeMods[iMod+1:]...)
-
-			// First we must copy|symlink the required mod pak files
-			domain.DeletePakFileLinks(domain.CalculatePakFileLinks(&cfg.Base, mod))
-
-			// Then we must update the modsettings file
-			domain.SetActiveModsInBg3Cfg(modsettings, activeMods)
-			domain.StoreModsInBg3Cfg(&cfg.Base, modsettings)
+			domain.DeactivateMod(&cfg.Base, cfg.ModName.Value(), cfg.ModVersion.Value())
 		},
 	}.ToCmd()
 }
@@ -140,7 +102,7 @@ func ModsDeactivateAllCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 
 			modsettings := modsettingslsx.Load(cfg)
-			currentMods := domain.ListActiveMods(modsettings)
+			currentMods := domain.ListActiveModsX(modsettings)
 			grouped := lo.GroupBy(currentMods, func(mod domain.Mod) bool {
 				return mod.Name == "GustavDev"
 			})
@@ -223,7 +185,7 @@ func ValidActiveModNameAndVersionArgsFunc(cfg *config.BaseConfig) func(cmd *cobr
 
 		modXml := modsettingslsx.Load(cfg)
 
-		modsByName := lo.GroupBy(domain.ListActiveMods(modXml), func(item domain.Mod) string {
+		modsByName := lo.GroupBy(domain.ListActiveModsX(modXml), func(item domain.Mod) string {
 			return item.Name
 		})
 		delete(modsByName, "GustavDev")
