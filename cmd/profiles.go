@@ -40,10 +40,11 @@ func ProfilesLoadCmd() *cobra.Command {
 		Short:         "load and activate a profile's mods",
 		Params:        cfg,
 		ParamEnrich:   boa.ParamEnricherDefault,
-		ValidArgsFunc: ValidAvailableModNameAndVersionArgsFunc(&cfg.Base),
+		ValidArgsFunc: ValidAvailableProfileNameAndVersionArgsFunc(&cfg.Base),
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Printf("loading profile %s\n", cfg.ProfileName.Value())
-			domain.LoadProfile(&cfg.Base, cfg.ProfileName.Value())
+			//domain.LoadProfile(&cfg.Base, cfg.ProfileName.Value())
+			panic("not implemented")
 		},
 	}.ToCmd()
 }
@@ -107,7 +108,8 @@ func ProfilesDeleteCmd() *cobra.Command {
 		ValidArgsFunc: ValidAvailableProfileNameAndVersionArgsFunc(&cfg.Base),
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Printf("deleting profile %s\n", cfg.ProfileName.Value())
-			domain.DeleteProfile(&cfg.Base, cfg.ProfileName.Value())
+			//domain.DeleteProfile(&cfg.Base, cfg.ProfileName.Value())
+			panic("not implemented")
 		},
 	}.ToCmd()
 }
@@ -119,7 +121,7 @@ func ValidAvailableProfileNameAndVersionArgsFunc(cfg *config.BaseConfig) func(cm
 
 		switch len(args) {
 		case 0:
-			return profiles, cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
+			return profileNames, cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
 		default:
 			return []string{}, cobra.ShellCompDirectiveNoFileComp
 		}

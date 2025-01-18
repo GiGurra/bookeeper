@@ -13,13 +13,18 @@ import (
 	"strings"
 )
 
+type Profile struct {
+	Name string `json:"Name"`
+	Mods []Mod  `json:"Mods"`
+}
+
 type Mod struct {
-	Folder        string
-	MD5           string
-	Name          string
-	PublishHandle string
-	UUID          string
-	Version64     string
+	Folder        string `json:"Folder"`
+	MD5           string `json:"MD5"`
+	Name          string `json:"Name"`
+	PublishHandle string `json:"PublishHandle"`
+	UUID          string `json:"UUID"`
+	Version64     string `json:"Version64"`
 }
 
 func MakeModAvailable(cfg *config.BaseConfig, zipFilePath string) {
@@ -424,5 +429,93 @@ func DeactivateAllMods(
 	})
 
 	SetActiveMods(c, newModList)
+
+}
+
+func SaveProfile(c *config.BaseConfig, profileName string) {
+	if strings.TrimSpace(profileName) == "" {
+		common.ExitWithUserError("Profile name cannot be empty")
+	}
+	profileSaveDir := filepath.Join(config.ProfilesDir(c), profileName)
+	if !config.ExistsDir(profileSaveDir) {
+		err := os.MkdirAll(profileSaveDir, os.ModePerm)
+		if err != nil {
+			panic(fmt.Errorf("failed to create profile dir: %w", err))
+		}
+	}
+	// remove GustavDev from the profile.
+	// We don't want to save GustavDev in the profile on disk,
+	// since the game might update its GustavDev version,
+	// and we don't want to try to load an old one
+	activeMods := lo.Filter(ListActiveMods(c), func(m Mod, _ int) bool {
+		return m.Name != "GustavDev"
+	})
+	data := Profile{
+		Name: profileName,
+		Mods: activeMods,
+	}
+
+	bs, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		panic(fmt.Errorf("failed to marshal profile data: %w", err))
+	}
+
+	profileSavePath := filepath.Join(profileSaveDir, "profile.json")
+	err = os.WriteFile(profileSavePath, bs, os.ModePerm)
+	if err != nil {
+		panic(fmt.Errorf("failed to write profile file: %w", err))
+	}
+
+	fmt.Printf("Profile %s saved to %s\n", profileName, profileSavePath)
+}
+
+func ListProfileNames(cfg *config.BaseConfig) []string {
+
+	profilesDir := config.ProfilesDir(cfg)
+	entries, err := os.ReadDir(profilesDir)
+	if err != nil {
+		panic(fmt.Errorf("failed to read directory %s: %w", profilesDir, err))
+	}
+
+	var result []string
+	for _, entry := range entries {
+		if entry.IsDir() {
+			result = append(result, entry.Name())
+		}
+	}
+
+	return result
+
+}
+
+func ListProfiles(cfg *config.BaseConfig) []Profile {
+
+	profilesDir := config.ProfilesDir(cfg)
+	entries, err := os.ReadDir(profilesDir)
+	if err != nil {
+		panic(fmt.Errorf("failed to read directory %s: %w", profilesDir, err))
+	}
+
+	var result []Profile
+	for _, entry := range entries {
+		if entry.IsDir() {
+			profileDir := filepath.Join(profilesDir, entry.Name())
+			profileFilePath := filepath.Join(profileDir, "profile.json")
+			if config.ExistsFile(profileFilePath) {
+				bs, err := os.ReadFile(profileFilePath)
+				if err != nil {
+					panic(fmt.Errorf("failed to read file %s: %w", profileFilePath, err))
+				}
+				var profile Profile
+				err = json.Unmarshal(bs, &profile)
+				if err != nil {
+					panic(fmt.Errorf("failed to unmarshal profile file %s: %w", profileFilePath, err))
+				}
+				result = append(result, profile)
+			}
+		}
+	}
+
+	return result
 
 }

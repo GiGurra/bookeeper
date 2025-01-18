@@ -18,6 +18,7 @@ func main() {
 			cmd.StatusCmd(),
 			cmd.GetCmd(),
 			cmd.ModsCmd(),
+			cmd.Profiles(),
 			cmd.Bg3SeCmd(),
 		},
 		Params:      &cfg,
