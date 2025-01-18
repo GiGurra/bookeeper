@@ -126,10 +126,10 @@ Showing current status:
 ├── available profiles
 │   ├── no_mods
 │   └── op_andersson
-│       ├── [Party Limit Begone]  1d6c4030-67b9-4b0a-b3ab-caf6dd73d1af, v 72902018968059904
-│       ├── [5eSpells]  fb5f528d-4d48-4bf2-a668-2274d3cfba96, v 1
-│       ├── [UnlockLevelCurve]  d903677e-f24b-48ec-ab20-98dcc116a371, v 72057594037927962
-│       ├── [UnlockLevelCurve_Patch_XP_x0.5]  e53ae4b5-a922-47ef-b69d-d55c5745a65b, v 72057594037927960
+│       ├── [Party Limit Begone                         ]  1d6c4030-67b9-4b0a-b3ab-caf6dd73d1af, v 72902018968059904
+│       ├── [5eSpells                                   ]  fb5f528d-4d48-4bf2-a668-2274d3cfba96, v 1
+│       ├── [UnlockLevelCurve                           ]  d903677e-f24b-48ec-ab20-98dcc116a371, v 72057594037927962
+│       ├── [UnlockLevelCurve_Patch_XP_x0.5             ]  e53ae4b5-a922-47ef-b69d-d55c5745a65b, v 72057594037927960
 │       └── [UnlockLevelCurve_Patch_5eSpells_Improvement]  4d00bc91-f3cb-430a-b86f-a59a6af2171e, v 72057594037927960
 └── available mods
     ├── [5eSpells                                   ]  fb5f528d-4d48-4bf2-a668-2274d3cfba96, v 1
