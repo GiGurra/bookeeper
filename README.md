@@ -46,7 +46,7 @@ Mods are stored in `~/.local/share/bookeeper/downloaded_mods` and are not automa
 a mod zip file, and then run `bookeeper mods make-available <mod-zip-path>` to make it available for activation.
 NOTE: This assumes the zip file comes with a proper `info.json` file. If not, you need to create one manually.
 
-When you run `bookeeper mods make-available <mod-zip-path>`, the zip file is unpacked and extracted to the mod
+When you run `bookeeper mods make-available <mod-zip-path>`, the zip file is unpacked and extracted to the
 `bookeeper` mod storage directory, with one directory per mod version, like so:
 
 ```
