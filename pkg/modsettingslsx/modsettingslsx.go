@@ -4,14 +4,34 @@ import (
 	"encoding/xml"
 	"fmt"
 	"github.com/samber/lo"
+	"os"
 	"regexp"
 	"strings"
 )
 
-type XmlRoot struct {
+type ModSettingsXml struct {
 	XMLName xml.Name   `xml:"save"`
 	Version XmlVersion `xml:"version"`
 	Region  XmlRegion  `xml:"region"`
+}
+
+func NewModSettingsXmlFromFile(filePath string) *ModSettingsXml {
+	bs, err := os.ReadFile(filePath)
+	if err != nil {
+		panic(fmt.Errorf("failed to read file %s: %w", filePath, err))
+	}
+
+	var root ModSettingsXml
+	err = xml.Unmarshal(bs, &root)
+	if err != nil {
+		panic(fmt.Errorf("failed to unmarshal xml: %w", err))
+	}
+
+	return &root
+}
+
+func (n *ModSettingsXml) GetMods() []Mod {
+	return n.Region.Categories.GetMods()
 }
 
 type XmlVersion struct {
@@ -49,7 +69,7 @@ type XmlAttribute struct {
 	Type  string `xml:"type,attr"`
 }
 
-func (m *XmlRoot) ToXML() string {
+func (m *ModSettingsXml) ToXML() string {
 
 	bs, err := xml.MarshalIndent(m, "", "  ")
 	if err != nil {
@@ -77,7 +97,7 @@ func (n *XmlCategories) GetXmlMods() []XmlMod {
 	return nil
 }
 
-func (n *XmlCategories) SetGetXmlMods(newMods []XmlMod) {
+func (n *XmlCategories) SetXmlMods(newMods []XmlMod) {
 	for i, child := range n.Children {
 		if child.ID == "Mods" {
 			n.Children[i].Children = newMods
@@ -107,6 +127,7 @@ func (n *XmlCategories) GetMods() []Mod {
 	xmlMods := n.GetXmlMods()
 	order := n.GetXmlModOrder()
 	// order the xmlMods according to the order in the ModOrder
+	handled := make(map[string]bool)
 	for _, mod := range order {
 		for _, xmlMod := range xmlMods {
 			if mod.GetXmlAttributeValue("UUID") == xmlMod.GetXmlAttributeValue("UUID") {
@@ -118,13 +139,26 @@ func (n *XmlCategories) GetMods() []Mod {
 					UUID:          xmlMod.GetXmlAttributeValue("UUID"),
 					Version64:     xmlMod.GetXmlAttributeValue("Version64"),
 				})
+				handled[mod.GetXmlAttributeValue("UUID")] = true
 			}
+		}
+	}
+	for _, xmlMod := range xmlMods {
+		if _, ok := handled[xmlMod.GetXmlAttributeValue("UUID")]; !ok {
+			result = append(result, Mod{
+				Folder:        xmlMod.GetXmlAttributeValue("Folder"),
+				MD5:           xmlMod.GetXmlAttributeValue("MD5"),
+				Name:          xmlMod.GetXmlAttributeValue("Name"),
+				PublishHandle: xmlMod.GetXmlAttributeValue("PublishHandle"),
+				UUID:          xmlMod.GetXmlAttributeValue("UUID"),
+				Version64:     xmlMod.GetXmlAttributeValue("Version64"),
+			})
 		}
 	}
 	return result
 }
 
-func (n *XmlRoot) SetMods(mods []Mod) {
+func (n *ModSettingsXml) SetMods(mods []Mod) {
 
 	xmlMods := lo.Map(mods, func(mod Mod, _ int) XmlMod {
 		return XmlMod{
@@ -149,7 +183,7 @@ func (n *XmlRoot) SetMods(mods []Mod) {
 		}
 	})
 
-	n.Region.Categories.SetGetXmlMods(xmlMods)
+	n.Region.Categories.SetXmlMods(xmlMods)
 	n.Region.Categories.SetXmlModOrder(xmlModOrder)
 }
 
@@ -171,7 +205,7 @@ type Mod struct {
 	Version64     string
 }
 
-func (n *XmlRoot) WithNewModSet() []XmlMod {
+func (n *ModSettingsXml) WithNewModSet() []XmlMod {
 	return n.Region.Categories.GetXmlModOrder()
 }
 

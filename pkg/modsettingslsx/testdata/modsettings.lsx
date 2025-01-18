@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<save>
+    <version major="4" minor="7" revision="1" build="300"/>
+    <region id="ModuleSettings">
+        <node id="root">
+            <children>
+                <node id="Mods">
+                    <children>
+                        <node id="ModuleShortDesc">
+                            <attribute id="Folder" type="LSString" value="GustavDev"/>
+                            <attribute id="MD5" type="LSString" value="33c1655f7ae3559b579ff3b9d2c45413"/>
+                            <attribute id="Name" type="LSString" value="GustavDev"/>
+                            <attribute id="PublishHandle" type="uint64" value="0"/>
+                            <attribute id="UUID" type="guid" value="28ac9ce2-2aba-8cda-b3b5-6e922f71b6b8"/>
+                            <attribute id="Version64" type="int64" value="145100779997082619"/>
+                        </node>
+                        <node id="ModuleShortDesc">
+                            <attribute id="Folder" type="LSString" value="UnlockSpells_f109f659-4ac2-7fc1-ade4-4b778c86cbd8"/>
+                            <attribute id="MD5" type="LSString" value="d3e21dc4eb538ff73d7fdec72b3441ef"/>
+                            <attribute id="Name" type="LSString" value="5e Spells: WIP"/>
+                            <attribute id="PublishHandle" type="uint64" value="4358882"/>
+                            <attribute id="UUID" type="guid" value="f109f659-4ac2-7fc1-ade4-4b778c86cbd8"/>
+                            <attribute id="Version64" type="int64" value="36028799166447637"/>
+                        </node>
+                        <node id="ModuleShortDesc">
+                            <attribute id="Folder" type="LSString" value="ConfigurablePartyLimit_33c1de88-dfd0-351d-8904-a5ee730880c6"/>
+                            <attribute id="MD5" type="LSString" value="b391ea97da68943a951add4422eca785"/>
+                            <attribute id="Name" type="LSString" value="Adjustable Party Limit"/>
+                            <attribute id="PublishHandle" type="uint64" value="4256380"/>
+                            <attribute id="UUID" type="guid" value="33c1de88-dfd0-351d-8904-a5ee730880c6"/>
+                            <attribute id="Version64" type="int64" value="72339079752056832"/>
+                        </node>
+                        <node id="ModuleShortDesc">
+                            <attribute id="Folder" type="LSString" value="UnlockLevelCurve_a2ffd0e4-c407-8642-2611-c934ea0b0a77"/>
+                            <attribute id="MD5" type="LSString" value="c74a5e3221ce90e44b40635bbca788c9"/>
+                            <attribute id="Name" type="LSString" value="UnlockLevelCurve - Level 13-20 | Patch 7"/>
+                            <attribute id="PublishHandle" type="uint64" value="4166963"/>
+                            <attribute id="UUID" type="guid" value="a2ffd0e4-c407-8642-2611-c934ea0b0a77"/>
+                            <attribute id="Version64" type="int64" value="72057594037927962"/>
+                        </node>
+                        <node id="ModuleShortDesc">
+                            <attribute id="Folder" type="LSString" value="UnlockLevelCurve_Patch_XP_x05_bba03974-fd59-e75a-b875-9e5754d0ce8a"/>
+                            <attribute id="MD5" type="LSString" value="87bdb9e88132d6c2b10143671df37075"/>
+                            <attribute id="Name" type="LSString" value="UnlockLevelCurve_Patch_XP_x05"/>
+                            <attribute id="PublishHandle" type="uint64" value="4187489"/>
+                            <attribute id="UUID" type="guid" value="bba03974-fd59-e75a-b875-9e5754d0ce8a"/>
+                            <attribute id="Version64" type="int64" value="72057594037927960"/>
+                        </node>
+                    </children>
+                </node>
+            </children>
+        </node>
+    </region>
+</save>
