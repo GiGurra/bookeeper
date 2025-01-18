@@ -3,12 +3,12 @@ package cmd
 import (
 	"fmt"
 	"github.com/GiGurra/boa/pkg/boa"
+	"github.com/GiGurra/bookeeper/pkg/common"
 	"github.com/GiGurra/bookeeper/pkg/config"
 	"github.com/GiGurra/bookeeper/pkg/domain"
 	"github.com/GiGurra/bookeeper/pkg/modsettingslsx"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
-	"os"
 	"strings"
 )
 
@@ -37,11 +37,6 @@ type ModsActivateCmdConfig struct {
 	ModVersion boa.Required[string] `positional:"true" description:"version of the mod to activate"`
 }
 
-func exitWithUserError(msg string) {
-	fmt.Println(msg)
-	os.Exit(1)
-}
-
 func ModsActivateCmd() *cobra.Command {
 
 	cfg := &ModsActivateCmdConfig{}
@@ -57,7 +52,7 @@ func ModsActivateCmd() *cobra.Command {
 			fmt.Printf("activating mod %s, v %s\n", cfg.ModName.Value(), cfg.ModVersion.Value())
 
 			if cfg.ModName.Value() == "GustavDev" {
-				exitWithUserError("Not allowed to activate GustavDev")
+				common.ExitWithUserError("Not allowed to activate GustavDev")
 			}
 
 			modsettings := modsettingslsx.Load(&cfg.Base)
@@ -68,11 +63,11 @@ func ModsActivateCmd() *cobra.Command {
 				return mod.Name == cfg.ModName.Value() && mod.Version64 == cfg.ModVersion.Value()
 			})
 			if !found {
-				exitWithUserError(fmt.Sprintf("mod %s, v %s not found", cfg.ModName.Value(), cfg.ModVersion.Value()))
+				common.ExitWithUserError(fmt.Sprintf("mod %s, v %s not found", cfg.ModName.Value(), cfg.ModVersion.Value()))
 			}
 
 			if lo.ContainsBy(activeMods, func(m domain.Mod) bool { return m.Name == cfg.ModName.Value() }) {
-				exitWithUserError(fmt.Sprintf("a mod with name %s is already active", cfg.ModName.Value()))
+				common.ExitWithUserError(fmt.Sprintf("a mod with name %s is already active", cfg.ModName.Value()))
 			}
 
 			// First we must copy|symlink the required mod pak files
@@ -107,7 +102,7 @@ func ModsDeactivateCmd() *cobra.Command {
 			fmt.Printf("deactivating mod %s, v %s\n", cfg.ModName.Value(), cfg.ModVersion.Value())
 
 			if cfg.ModName.Value() == "GustavDev" {
-				exitWithUserError("Not allowed to deactivate GustavDev")
+				common.ExitWithUserError("Not allowed to deactivate GustavDev")
 			}
 
 			modsettings := modsettingslsx.Load(&cfg.Base)
@@ -117,7 +112,7 @@ func ModsDeactivateCmd() *cobra.Command {
 				return mod.Name == cfg.ModName.Value() && mod.Version64 == cfg.ModVersion.Value()
 			})
 			if !found {
-				exitWithUserError(fmt.Sprintf("mod %s, v %s not active, nothing to deactivate", cfg.ModName.Value(), cfg.ModVersion.Value()))
+				common.ExitWithUserError(fmt.Sprintf("mod %s, v %s not active, nothing to deactivate", cfg.ModName.Value(), cfg.ModVersion.Value()))
 			}
 
 			// Remove the mod from the active mods list
