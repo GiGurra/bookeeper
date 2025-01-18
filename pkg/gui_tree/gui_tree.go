@@ -8,34 +8,24 @@ import (
 	"strings"
 )
 
-func Profiles(cfg *config.BaseConfig) treeprint.Tree {
-	return ProfilesN(cfg, "profiles")
-}
-
-func ProfilesN(cfg *config.BaseConfig, name string) treeprint.Tree {
+func DomainProfilesN(cfg *config.BaseConfig, name string) treeprint.Tree {
 	profilesNode := treeprint.NewWithRoot(name)
-	profiles := config.ListProfiles(cfg)
+	profiles := domain.ListProfiles(cfg)
 	for _, profile := range profiles {
-		AddChild(profilesNode, Profile(profile))
+		AddChild(profilesNode, DomainProfile(cfg, profile))
 	}
 	return profilesNode
 }
 
-func Profile(
-	profile config.Profile,
+func DomainProfile(
+	cfg *config.BaseConfig,
+	profile domain.Profile,
 ) treeprint.Tree {
 	profileNode := treeprint.NewWithRoot(profile.Name)
-	modsNode := profileNode.AddNode("mods")
 	for _, mod := range profile.Mods {
-		modsNode.AddMetaBranch(fmt.Sprintf("%s@%s", mod.Name, mod.Version), mod.DownloadPath)
+		AddChild(profileNode, DomainMod(mod, cfg.Verbose.Value()))
 	}
 	return profileNode
-}
-
-func ConfigMod(
-	mod config.Mod,
-) treeprint.Tree {
-	return treeprint.NewWithRoot(fmt.Sprintf("%s@%s, [%s]", mod.Name, mod.Version, mod.DownloadPath))
 }
 
 func DomainMod(

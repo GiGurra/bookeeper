@@ -68,14 +68,7 @@ func StatusCmd() *cobra.Command {
 			if cfg.Verbose.Value() {
 				availableProfilesTitle += " (" + config.ProfilesDir(cfg) + ")"
 			}
-			gui_tree.AddChild(rootNode, gui_tree.ProfilesN(cfg, availableProfilesTitle))
-			for _, profile := range domain.ListProfiles(cfg) {
-				profileNode := gui_tree.AddChildStr(rootNode, profile.Name)
-				for _, mod := range profile.Mods {
-					gui_tree.AddChild(profileNode, gui_tree.DomainMod(mod, cfg.Verbose.Value()))
-				}
-				gui_tree.MakeChildrenSameKeyLen(profileNode)
-			}
+			gui_tree.AddChild(rootNode, gui_tree.DomainProfilesN(cfg, availableProfilesTitle))
 
 			///////////// Available mods /////////////////////////////////////////
 			availableModsTitle := "available mods"
