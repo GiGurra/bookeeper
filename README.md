@@ -143,7 +143,7 @@ Showing current status:
 The only way currently to control mod load order is to deactivate and reactivate mods in the desired order,
 Sorry :D, this might be improved later, if I (or someone else) continues working on this.
 
-The easiest solution right now is to just creat your load order once, with
+The easiest solution right now is to just create your load order once, with
 `bookeeper mods activate <mod-name> <version>`, and then save it to a profile with
 `bookeeper profiles save <profile-name>`. Then you can just load that profile whenever.
 
