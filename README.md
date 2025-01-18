@@ -40,6 +40,102 @@ bookeeper profiles delete <profile-name>
 bookeeper bg3se install
 ```
 
+### Mod storage
+
+Mods are stored in `~/.local/share/bookeeper/downloaded_mods` and are not automatically downloaded. You need to download
+a mod zip file, and then run `bookeeper mods make-available <mod-zip-path>` to make it available for activation.
+
+NOTE: This assumes the zip file comes with a proper `info.json` file. If not, you need to create one manually.
+
+Downloaded mods are stored with one directory per mod version, like so:
+```
+downloaded_mods
+└── mod-name
+    ├── version-1
+    │   ├── something.pak
+    │   └── info.json
+    └── version-2
+        ├── somethingelse.pak
+        └── info.json
+```
+
+### Mod activation
+
+Mods are activated by name and version, by running `bookeeper mods activate <mod-name> <version>`. This will create a
+symlinks the bg3 mod directory to all the `.pak` files in the mod version directory under `downloaded_mods`.
+
+### CLI help
+
+Experiment yourself. Below are some examples:
+
+```bash
+> bookeeper --help
+Very basic cli mod manager for Baldur's Gate 3
+
+Usage:
+  bookeeper [command]
+
+Available Commands:
+  bg3se       operations related to bg3se (BG3 Script Extender)
+  completion  Generate the autocompletion script for the specified shell
+  get         get specific path or info
+  help        Help about any command
+  mods        operations on mods
+  profiles    operations on profiles
+  status      print mod status
+
+Flags:
+  -v, --verbose                         (env: VERBOSE) (default false)
+  -s, --steam-path string               (env: STEAM_PATH) (default "${HOME}/.steam/steam")
+  -u, --user-data-path string           (env: USER_DATA_PATH) (default "${SteamPath}/userdata/[0]")
+  -m, --mods-install-dir string         (env: MODS_INSTALL_DIR) (default "${SteamPath}/steamapps/compatdata/1086940/pfx/drive_c/users/steamuser/AppData/Local/Larian Studios/Baldur's Gate 3/Mods")
+      --mod-settings-lsx-path string    (env: MOD_SETTINGS_LSX_PATH) (default "${SteamPath}/steamapps/compatdata/1086940/pfx/drive_c/users/steamuser/AppData/Local/Larian Studios/Baldur's Gate 3/PlayerProfiles/Public/modsettings.lsx")
+  -h, --help                           help for bookeeper
+
+Use "bookeeper [command] --help" for more information about a command.
+````
+
+Showing current status:
+
+```bash
+> bookeeper status
+.
+├── bookeeper paths
+│   ├── [bookeeper      ]  /home/johkjo/.local/share/bookeeper
+│   ├── [downloaded mods]  /home/johkjo/.local/share/bookeeper/downloaded_mods
+│   └── [profiles       ]  /home/johkjo/.local/share/bookeeper/profiles
+├── bg3 paths
+│   ├── [bg3 install dir]  /home/johkjo/.steam/steam/steamapps/common/Baldurs Gate 3
+│   │   ├── [bin]  /home/johkjo/.steam/steam/steamapps/common/Baldurs Gate 3/bin
+│   │   └── bg3se status
+│   │       ├── [installed]  true
+│   │       └── [dll path ]  /home/johkjo/.steam/steam/steamapps/common/Baldurs Gate 3/bin/DWrite.dll
+│   └── compatdata
+│       ├── [mod dir        ]  /home/johkjo/.steam/steam/steamapps/compatdata/1086940/pfx/drive_c/users/steamuser/AppData/Local/Larian Studios/Baldur's Gate 3/Mods
+│       └── [modsettings.lsx]  /home/johkjo/.steam/steam/steamapps/compatdata/1086940/pfx/drive_c/users/steamuser/AppData/Local/Larian Studios/Baldur's Gate 3/PlayerProfiles/Public/modsettings.lsx
+├── active mods
+│   ├── [GustavDev                                  ]  28ac9ce2-2aba-8cda-b3b5-6e922f71b6b8, v 36028797018963968
+│   ├── [Party Limit Begone                         ]  1d6c4030-67b9-4b0a-b3ab-caf6dd73d1af, v 72902018968059904
+│   ├── [5eSpells                                   ]  fb5f528d-4d48-4bf2-a668-2274d3cfba96, v 1
+│   ├── [UnlockLevelCurve                           ]  d903677e-f24b-48ec-ab20-98dcc116a371, v 72057594037927962
+│   ├── [UnlockLevelCurve_Patch_XP_x0.5             ]  e53ae4b5-a922-47ef-b69d-d55c5745a65b, v 72057594037927960
+│   └── [UnlockLevelCurve_Patch_5eSpells_Improvement]  4d00bc91-f3cb-430a-b86f-a59a6af2171e, v 72057594037927960
+├── available profiles
+│   ├── no_mods
+│   └── op_andersson
+│       ├── [Party Limit Begone]  1d6c4030-67b9-4b0a-b3ab-caf6dd73d1af, v 72902018968059904
+│       ├── [5eSpells]  fb5f528d-4d48-4bf2-a668-2274d3cfba96, v 1
+│       ├── [UnlockLevelCurve]  d903677e-f24b-48ec-ab20-98dcc116a371, v 72057594037927962
+│       ├── [UnlockLevelCurve_Patch_XP_x0.5]  e53ae4b5-a922-47ef-b69d-d55c5745a65b, v 72057594037927960
+│       └── [UnlockLevelCurve_Patch_5eSpells_Improvement]  4d00bc91-f3cb-430a-b86f-a59a6af2171e, v 72057594037927960
+└── available mods
+    ├── [5eSpells                                   ]  fb5f528d-4d48-4bf2-a668-2274d3cfba96, v 1
+    ├── [Party Limit Begone                         ]  1d6c4030-67b9-4b0a-b3ab-caf6dd73d1af, v 72902018968059904
+    ├── [UnlockLevelCurve                           ]  d903677e-f24b-48ec-ab20-98dcc116a371, v 72057594037927962
+    ├── [UnlockLevelCurve_Patch_5eSpells_Improvement]  4d00bc91-f3cb-430a-b86f-a59a6af2171e, v 72057594037927960
+    └── [UnlockLevelCurve_Patch_XP_x0.5             ]  e53ae4b5-a922-47ef-b69d-d55c5745a65b, v 72057594037927960
+```
+
 ### Load order
 
 The only way currently to control mod load order is to deactivate and reactivate mods in the desired order,
