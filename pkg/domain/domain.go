@@ -447,6 +447,11 @@ func SaveProfile(c *config.BaseConfig, profileName string) {
 		if err != nil {
 			panic(fmt.Errorf("failed to create profile dir: %w", err))
 		}
+	} else {
+		if !common.AskForConfirmation(fmt.Sprintf("Profile %s already exists. Overwrite?", profileName)) {
+			fmt.Printf("Profile %s not saved\n", profileName)
+			return
+		}
 	}
 	// remove GustavDev from the profile.
 	// We don't want to save GustavDev in the profile on disk,
@@ -539,5 +544,27 @@ func LoadProfile(c *config.BaseConfig, profileName string) {
 		common.ExitWithUserError(fmt.Sprintf("profile %s not found", profileName))
 	} else {
 		SetActiveMods(c, profile.Mods)
+	}
+}
+
+func DeleteProfile(
+	c *config.BaseConfig,
+	profileName string,
+) {
+	profileDir := filepath.Join(config.ProfilesDir(c), profileName)
+	if !config.ExistsDir(profileDir) {
+		common.ExitWithUserError(fmt.Sprintf("profile %s not found", profileName))
+	} else {
+
+		// ask for confirmation
+		if common.AskForConfirmation(fmt.Sprintf("Delete profile %s?", profileName)) {
+			err := os.RemoveAll(profileDir)
+			if err != nil {
+				panic(fmt.Errorf("failed to remove profile dir: %w", err))
+			}
+			fmt.Printf("Profile %s deleted\n", profileName)
+		} else {
+			fmt.Printf("Profile %s not deleted\n", profileName)
+		}
 	}
 }
