@@ -8,6 +8,7 @@ import (
 	"github.com/GiGurra/bookeeper/pkg/modsettingslsx"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
+	"os"
 	"strings"
 )
 
@@ -23,6 +24,7 @@ func ModsCmd() *cobra.Command {
 		SubCommands: []*cobra.Command{
 			ModsActivateCmd(),
 			ModsDeactivateCmd(),
+			ModsDeactivateAllCmd(),
 			ModsMakeAvailableCmd(),
 			ModsMakeUnavailableCmd(),
 		},
@@ -69,6 +71,11 @@ func ModsDeactivateCmd() *cobra.Command {
 		ValidArgsFunc: ValidActiveModNameAndVersionArgsFunc(&cfg.Base),
 		Run: func(cmd *cobra.Command, args []string) {
 
+			if cfg.ModName.Value() == "GustavDev" {
+				fmt.Println("Not allowed to deactivate GustavDev")
+				os.Exit(1)
+			}
+
 			modXml := modsettingslsx.Load(&cfg.Base)
 			for _, mod := range modXml.GetMods() {
 				if mod.Name == cfg.ModName.Value() && mod.Version64 == cfg.ModVersion.Value() {
@@ -78,6 +85,28 @@ func ModsDeactivateCmd() *cobra.Command {
 			}
 
 			panic(fmt.Errorf("mod %s, v %s not found", cfg.ModName.Value(), cfg.ModVersion.Value()))
+		},
+	}.ToCmd()
+}
+
+func ModsDeactivateAllCmd() *cobra.Command {
+
+	cfg := &config.BaseConfig{}
+
+	return boa.Wrap{
+		Use:         "deactivate-all",
+		Short:       "deactivate all active mods immediately",
+		Params:      cfg,
+		ParamEnrich: boa.ParamEnricherDefault,
+		Run: func(cmd *cobra.Command, args []string) {
+
+			modXml := modsettingslsx.Load(cfg)
+			currentMods := modXml.GetMods()
+			newModList := lo.Filter(currentMods, func(mod domain.Mod, _ int) bool {
+				return mod.Name == "GustavDev"
+			})
+			modXml.SetMods(newModList)
+
 		},
 	}.ToCmd()
 }
