@@ -71,6 +71,7 @@ func StatusCmd() *cobra.Command {
 			for _, mod := range domain.ListAvailableMods(cfg) {
 				gui_tree.AddChild(bg3DownloadedModsNode, gui_tree.DomainMod(mod, cfg.Verbose.Value()))
 			}
+			gui_tree.MakeChildrenSameKeyLen(bg3DownloadedModsNode)
 
 			fmt.Println(rootNode.String())
 		},
