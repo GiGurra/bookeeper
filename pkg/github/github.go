@@ -69,7 +69,7 @@ type Asset struct {
 	BrowserDownloadURL string `json:"browser_download_url"`
 }
 
-func (a Asset) DownloadToDir(dir string) {
+func (a Asset) DownloadToDir(dir string) string {
 	// download the asset to the specified directory
 	resp, err := http.Get(a.BrowserDownloadURL)
 	if err != nil {
@@ -108,7 +108,7 @@ func (a Asset) DownloadToDir(dir string) {
 		panic(fmt.Errorf("failed to write asset to file: %w", err))
 	}
 
-	fmt.Println("Downloaded asset to", filePath)
+	return filePath
 }
 
 type Reactions struct {

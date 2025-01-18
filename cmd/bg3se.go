@@ -5,8 +5,10 @@ import (
 	"github.com/GiGurra/boa/pkg/boa"
 	"github.com/GiGurra/bookeeper/pkg/config"
 	"github.com/GiGurra/bookeeper/pkg/github"
+	"github.com/GiGurra/bookeeper/pkg/modzip"
 	"github.com/spf13/cobra"
 	"os"
+	"strings"
 )
 
 type Bg3SeCmdConfig struct {
@@ -38,6 +40,7 @@ func Bg3SeInstallCmd() *cobra.Command {
 		Params:      cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
 		Run: func(cmd *cobra.Command, args []string) {
+
 			//Norbyte/bg3se
 			release := github.GetLatestRelease("Norbyte", "bg3se")
 			if len(release.Assets) == 0 {
@@ -48,13 +51,20 @@ func Bg3SeInstallCmd() *cobra.Command {
 			}
 			asset := release.Assets[0]
 			// download the asset
-			tempDir, err := os.CreateTemp("", "bg3se")
+			tempDir, err := os.MkdirTemp("", "bg3se")
 			if err != nil {
 				panic(fmt.Errorf("failed to create temp dir: %w", err))
 			}
-			//defer func() { _ = os.RemoveAll(tempDir.Name()) }()
+			defer func() { _ = os.RemoveAll(tempDir) }()
 
-			asset.DownloadToDir(tempDir.Name())
+			downloadedZipFilePath := asset.DownloadToDir(tempDir)
+			defer func() { _ = os.Remove(downloadedZipFilePath) }()
+			if !strings.HasSuffix(strings.ToLower(downloadedZipFilePath), ".zip") {
+				panic(fmt.Errorf("downloaded bg3se asset is not a zip file: %s", downloadedZipFilePath))
+			}
+
+			// extract the asset on top of our current bg3se installation/bin
+			modzip.ExtractSpecificFilesFromZip(downloadedZipFilePath, []string{"DWrite.dll"}, config.Bg3binPath(&cfg.Base))
 		},
 	}.ToCmd()
 }
