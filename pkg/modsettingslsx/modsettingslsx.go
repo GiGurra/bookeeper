@@ -3,6 +3,7 @@ package modsettingslsx
 import (
 	"encoding/xml"
 	"fmt"
+	"github.com/samber/lo"
 	"regexp"
 	"strings"
 )
@@ -21,8 +22,8 @@ type XmlVersion struct {
 }
 
 type XmlRegion struct {
-	ID   string        `xml:"id,attr"`
-	Root XmlCategories `xml:"node"`
+	ID         string        `xml:"id,attr"`
+	Categories XmlCategories `xml:"node"`
 }
 
 type XmlCategories struct {
@@ -76,6 +77,31 @@ func (n *XmlCategories) GetXmlMods() []XmlMod {
 	return nil
 }
 
+func (n *XmlCategories) SetGetXmlMods(newMods []XmlMod) {
+	for i, child := range n.Children {
+		if child.ID == "Mods" {
+			n.Children[i].Children = newMods
+		}
+	}
+}
+
+func (n *XmlCategories) SetXmlModOrder(newOrder []XmlMod) {
+	for i, child := range n.Children {
+		if child.ID == "ModOrder" {
+			n.Children[i].Children = newOrder
+		}
+	}
+}
+
+//<node id="ModuleShortDesc">
+//	<attribute id="Folder" type="LSString" value="ConfigurablePartyLimit_33c1de88-dfd0-351d-8904-a5ee730880c6"/>
+//	<attribute id="MD5" type="LSString" value="b391ea97da68943a951add4422eca785"/>
+//	<attribute id="Name" type="LSString" value="Adjustable Party Limit"/>
+//	<attribute id="PublishHandle" type="uint64" value="4256380"/>
+//	<attribute id="UUID" type="guid" value="33c1de88-dfd0-351d-8904-a5ee730880c6"/>
+//	<attribute id="Version64" type="int64" value="72339079752056832"/>
+//</node>
+
 func (n *XmlCategories) GetMods() []Mod {
 	result := make([]Mod, 0)
 	xmlMods := n.GetXmlMods()
@@ -85,16 +111,46 @@ func (n *XmlCategories) GetMods() []Mod {
 		for _, xmlMod := range xmlMods {
 			if mod.GetXmlAttributeValue("UUID") == xmlMod.GetXmlAttributeValue("UUID") {
 				result = append(result, Mod{
-					Folder:    xmlMod.GetXmlAttributeValue("Folder"),
-					MD5:       xmlMod.GetXmlAttributeValue("MD5"),
-					Name:      xmlMod.GetXmlAttributeValue("Name"),
-					UUID:      xmlMod.GetXmlAttributeValue("UUID"),
-					Version64: xmlMod.GetXmlAttributeValue("Version64"),
+					Folder:        xmlMod.GetXmlAttributeValue("Folder"),
+					MD5:           xmlMod.GetXmlAttributeValue("MD5"),
+					Name:          xmlMod.GetXmlAttributeValue("Name"),
+					PublishHandle: xmlMod.GetXmlAttributeValue("PublishHandle"),
+					UUID:          xmlMod.GetXmlAttributeValue("UUID"),
+					Version64:     xmlMod.GetXmlAttributeValue("Version64"),
 				})
 			}
 		}
 	}
 	return result
+}
+
+func (n *XmlRoot) SetMods(mods []Mod) {
+
+	xmlMods := lo.Map(mods, func(mod Mod, _ int) XmlMod {
+		return XmlMod{
+			ID: "ModuleShortDesc",
+			Attributes: []XmlAttribute{
+				{ID: "Folder", Value: mod.Folder, Type: "LSString"},
+				{ID: "MD5", Value: mod.MD5, Type: "LSString"},
+				{ID: "Name", Value: mod.Name, Type: "LSString"},
+				{ID: "PublishHandle", Value: mod.PublishHandle, Type: "uint64"},
+				{ID: "UUID", Value: mod.UUID, Type: "guid"},
+				{ID: "Version64", Value: mod.Version64, Type: "int64"},
+			},
+		}
+	})
+
+	xmlModOrder := lo.Map(mods, func(mod Mod, _ int) XmlMod {
+		return XmlMod{
+			ID: "Module",
+			Attributes: []XmlAttribute{
+				{ID: "UUID", Value: mod.UUID, Type: "FixedString"},
+			},
+		}
+	})
+
+	n.Region.Categories.SetGetXmlMods(xmlMods)
+	n.Region.Categories.SetXmlModOrder(xmlModOrder)
 }
 
 func (n *XmlMod) GetXmlAttributeValue(id string) string {
@@ -107,15 +163,16 @@ func (n *XmlMod) GetXmlAttributeValue(id string) string {
 }
 
 type Mod struct {
-	Folder    string
-	MD5       string
-	Name      string
-	UUID      string
-	Version64 string
+	Folder        string
+	MD5           string
+	Name          string
+	PublishHandle string
+	UUID          string
+	Version64     string
 }
 
 func (n *XmlRoot) WithNewModSet() []XmlMod {
-	return n.Region.Root.GetXmlModOrder()
+	return n.Region.Categories.GetXmlModOrder()
 }
 
 func makeBg3StyleXml(xmlData string) string {

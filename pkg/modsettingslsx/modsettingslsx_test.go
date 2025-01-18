@@ -17,14 +17,14 @@ func TestNode_GetMods(t *testing.T) {
 	}
 
 	// Access ModOrder modules
-	modOrder := modSettingsLSX.Region.Root.GetXmlModOrder()
+	modOrder := modSettingsLSX.Region.Categories.GetXmlModOrder()
 	for _, module := range modOrder {
 		uuid := module.GetXmlAttributeValue("UUID")
 		fmt.Printf("Module UUID: %s\n", uuid)
 	}
 
 	// Access Mods
-	mods := modSettingsLSX.Region.Root.GetXmlMods()
+	mods := modSettingsLSX.Region.Categories.GetXmlMods()
 	for _, mod := range mods {
 		folder := mod.GetXmlAttributeValue("Folder")
 		name := mod.GetXmlAttributeValue("Name")
@@ -62,7 +62,7 @@ func TestXmlCategories_GetMods(t *testing.T) {
 	}
 
 	// Access Mods
-	mods := modSettingsLSX.Region.Root.GetMods()
+	mods := modSettingsLSX.Region.Categories.GetMods()
 
 	if len(mods) != 2 {
 		t.Fatalf("expected 2 mods, got %d", len(mods))
