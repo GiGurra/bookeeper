@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type ModData struct {
@@ -65,7 +66,7 @@ func InspectModZipUsingTempFolderExtract(
 
 func InspectModZip(
 	zipPath string,
-) ModData {
+) (ModData ModData, PakFile string) {
 	if !config.ExistsFile(zipPath) {
 		panic(fmt.Errorf("mod zip file not found: %s", zipPath))
 	}
@@ -83,19 +84,27 @@ func InspectModZip(
 	}()
 
 	// Extract info.json from the zip archive
-	var foundFile *zip.File
+	var foundInfoJson *zip.File
 	for _, file := range reader.File {
 		if file.Name == "info.json" {
-			foundFile = file
+			foundInfoJson = file
+		}
+		if strings.HasSuffix(strings.ToLower(file.Name), ".pak") {
+			PakFile = file.Name
+		}
+		if foundInfoJson != nil && PakFile != "" {
 			break
 		}
 	}
-	if foundFile == nil {
+	if foundInfoJson == nil {
 		panic(fmt.Errorf("info.json not found in zip: %s", zipPath))
+	}
+	if PakFile == "" {
+		panic(fmt.Errorf("no .pak file found in zip: %s", zipPath))
 	}
 
 	// Open the file in the zip
-	srcFile, err := foundFile.Open()
+	srcFile, err := foundInfoJson.Open()
 	if err != nil {
 		panic(fmt.Errorf("failed to open file in zip: %w", err))
 	}
@@ -113,13 +122,12 @@ func InspectModZip(
 	}
 
 	// parse info.json into ModData
-	var modData ModData
-	err = json.Unmarshal(bs, &modData)
+	err = json.Unmarshal(bs, &ModData)
 	if err != nil {
 		panic(fmt.Errorf("failed to unmarshal json: %w", err))
 	}
 
-	return modData
+	return ModData, PakFile
 }
 
 func DeflateZipFileToTempFolder(zipPath string) string {

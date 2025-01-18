@@ -54,7 +54,7 @@ func TestInspectModZipUsingTempFolderExtract(t *testing.T) {
 
 func TestInspectModZip(t *testing.T) {
 	zipPath := "testdata/UnlockLevelCurve_Patch_XP_x0.5-377-2-0-0-24-1721672677.zip"
-	modData := InspectModZip(zipPath)
+	modData, pakFile := InspectModZip(zipPath)
 	if len(modData.MD5) == 0 {
 		t.Errorf("MD5 is empty")
 	}
@@ -95,5 +95,9 @@ func TestInspectModZip(t *testing.T) {
 
 	if diff := cmp.Diff(modDataExpect, modData); diff != "" {
 		t.Errorf("modData mismatch (-want +got):\n%s", diff)
+	}
+
+	if pakFile != "UnlockLevelCurve_Patch_XP_x0.5.pak" {
+		t.Errorf("pakFile mismatch: %s", pakFile)
 	}
 }
