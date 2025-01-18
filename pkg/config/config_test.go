@@ -132,6 +132,17 @@ func TestBg3SeDllPath(t *testing.T) {
 	}
 }
 
+func TestBg3ModInstallDir(t *testing.T) {
+	cfg := validateConfig(&BaseConfig{})
+	result := Bg3ModInstallDir(cfg)
+
+	slog.Info(fmt.Sprintf("Bg3ModInstallDir(): %s", result))
+
+	if !ExistsDir(result) {
+		t.Fatalf("Bg3ModInstallDir() did not return a directory")
+	}
+}
+
 func TestBooKeeperCfgDir(t *testing.T) {
 	cfg := validateConfig(&BaseConfig{})
 	result := BooKeeperDir(cfg)

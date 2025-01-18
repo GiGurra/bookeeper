@@ -85,6 +85,13 @@ func (n *XmlMod) GetXmlAttributeValue(id string) string {
 	return ""
 }
 
+type Mod struct {
+}
+
+func (n *XmlRoot) WithNewModSet() []XmlMod {
+	return n.Region.Root.GetXmlModOrder()
+}
+
 func makeBg3StyleXml(xmlData string) string {
 
 	// TODO: Remove if it turns out we don't need this in the BG3 xml

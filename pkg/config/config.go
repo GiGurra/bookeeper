@@ -15,8 +15,9 @@ const (
 )
 
 type BaseConfig struct {
-	SteamPath    boa.Required[string] `default:"${HOME}/.local/share/Steam" name:"steam-path" short-name:"s"`
-	UserDataPath boa.Required[string] `default:"${SteamPath}/userdata/[0]" name:"user-data-path" short-name:"u"`
+	SteamPath      boa.Required[string] `default:"${HOME}/.local/share/Steam" name:"steam-path" short-name:"s"`
+	UserDataPath   boa.Required[string] `default:"${SteamPath}/userdata/[0]" name:"user-data-path" short-name:"u"`
+	ModsInstallDir boa.Required[string] `default:"${SteamPath}/steamapps/compatdata/1086940/pfx/drive_c/users/steamuser/AppData/Local/Larian Studios/Baldur's Gate 3/Mods" name:"mods-install-dir" short-name:"m"`
 }
 
 func HomeDir() string {
@@ -33,11 +34,27 @@ func SteamPath(cfg *BaseConfig) string {
 		panic("Steam path not set")
 	}
 
-	return strings.ReplaceAll(cfg.SteamPath.Value(), "${HOME}", HomeDir())
+	return replaceAllAliases(cfg, cfg.SteamPath.Value())
+}
+
+func replaceAllAliases(cfg *BaseConfig, str string) string {
+
+	if !cfg.SteamPath.HasValue() {
+		panic("Steam path not set")
+	}
+
+	homeDir := HomeDir()
+	steamDir := strings.ReplaceAll(cfg.SteamPath.Value(), "${HOME}", HomeDir())
+
+	return strings.ReplaceAll(strings.ReplaceAll(str, "${HOME}", homeDir), "${SteamPath}", steamDir)
 }
 
 func Bg3Path(cfg *BaseConfig) string {
 	return filepath.Join(SteamPath(cfg), "steamapps", "common", "Baldurs Gate 3")
+}
+
+func Bg3ModInstallDir(cfg *BaseConfig) string {
+	return replaceAllAliases(cfg, cfg.ModsInstallDir.Value())
 }
 
 func Bg3binPath(cfg *BaseConfig) string {
@@ -47,6 +64,8 @@ func Bg3binPath(cfg *BaseConfig) string {
 func BooKeeperDir(cfg *BaseConfig) string {
 	return ensureExistsDir(filepath.Join(HomeDir(), ".local", "share", "bookeeper"))
 }
+
+// ./.local/share/Steam/steamapps/compatdata/1086940/pfx/drive_c/users/steamuser/AppData/Local/Larian Studios/Baldur's Gate 3/Mods/
 
 func DownloadedModsDir(cfg *BaseConfig) string {
 	return ensureExistsDir(filepath.Join(BooKeeperDir(cfg), "downloaded_mods"))
@@ -156,9 +175,7 @@ func ExistsFile(path string) bool {
 // UserDataDir returns the path to the user data directory for the steam user.
 // This is typically ~/.local/share/Steam/userdata/<steam-user-id>.
 func UserDataDir(cfg *BaseConfig) string {
-	result := cfg.UserDataPath.Value()
-	result = strings.ReplaceAll(result, "${Home}", HomeDir())
-	result = strings.ReplaceAll(result, "${SteamPath}", SteamPath(cfg))
+	result := replaceAllAliases(cfg, cfg.UserDataPath.Value())
 	// Replace all [x] with the index/file listing
 	for strings.Contains(result, "[") {
 		start := strings.Index(result, "[")
