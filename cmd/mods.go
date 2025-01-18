@@ -133,10 +133,7 @@ func ValidAvailableModNameAndVersionArgsFunc(cfg *config.BaseConfig) func(cmd *c
 
 		switch len(args) {
 		case 0:
-			return lo.Map(lo.Keys(modsByName), func(item string, _ int) string {
-				// replace spaces with \<space>
-				return item
-			}), cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
+			return lo.Keys(modsByName), cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
 		default:
 			modName := strings.Join(args, " ")
 			return lo.Map(modsByName[modName], func(item domain.Mod, _ int) string {
@@ -158,11 +155,7 @@ func ValidActiveModNameAndVersionArgsFunc(cfg *config.BaseConfig) func(cmd *cobr
 
 		switch len(args) {
 		case 0:
-			return lo.Map(lo.Keys(modsByName), func(item string, _ int) string {
-				// replace spaces with \<space>
-				// if we have spaces, we need to quote it
-				return item
-			}), cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
+			return lo.Keys(modsByName), cobra.ShellCompDirectiveDefault | cobra.ShellCompDirectiveNoFileComp
 		default:
 			modName := strings.Join(args, " ")
 			return lo.Map(modsByName[modName], func(item domain.Mod, _ int) string {
