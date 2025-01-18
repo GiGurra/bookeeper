@@ -38,6 +38,84 @@ type ModsActivateCmdConfig struct {
 	ModVersion boa.Required[string] `positional:"true" description:"version of the mod to activate"`
 }
 
+type PakFileLink struct {
+	PathInStorage   string
+	PathInModFolder string
+}
+
+func calculatePakFileLinks(
+	cfg *config.BaseConfig,
+	mod domain.Mod,
+) []PakFileLink {
+
+	srcDir := filepath.Join(config.DownloadedModsDir(cfg), mod.Name, mod.Version64)
+	trgDir := config.Bg3ModInstallDir(cfg)
+
+	entries, err := os.ReadDir(srcDir)
+	if err != nil {
+		panic(fmt.Errorf("failed to read dir: %w", err))
+	}
+
+	var result []PakFileLink
+	for _, entry := range entries {
+		if strings.HasSuffix(strings.ToLower(entry.Name()), ".pak") {
+			srcPath := filepath.Join(srcDir, entry.Name())
+			trgPath := filepath.Join(trgDir, entry.Name())
+			result = append(result, PakFileLink{
+				PathInStorage:   srcPath,
+				PathInModFolder: trgPath,
+			})
+		}
+	}
+
+	return result
+}
+
+func setupPakFileLinks(
+	links []PakFileLink,
+) {
+	for _, link := range links {
+		fmt.Printf("symlinking %s -> %s\n", link.PathInModFolder, link.PathInStorage)
+		err := os.Symlink(link.PathInStorage, link.PathInModFolder)
+		if err != nil {
+			panic(fmt.Errorf("failed to symlink file: %w", err))
+		}
+	}
+}
+
+func deletePakFileLinks(
+	links []PakFileLink,
+) {
+	for _, link := range links {
+		fmt.Printf("deleting %s\n", link.PathInModFolder)
+		err := os.Remove(link.PathInModFolder)
+		if err != nil {
+			panic(fmt.Errorf("failed to remove file: %w", err))
+		}
+	}
+}
+
+func storeModSettings(
+	cfg *config.BaseConfig,
+	modsettings *modsettingslsx.ModSettingsXml,
+) {
+	newXml := modsettings.ToXML()
+	fmt.Printf("new xml: \n%s\n", newXml)
+
+	xmlSavePath := config.Bg3ModsettingsFilePath(cfg)
+	fmt.Printf("saving to %s\n", xmlSavePath)
+
+	err := os.WriteFile(xmlSavePath, []byte(newXml), 0644)
+	if err != nil {
+		panic(fmt.Errorf("failed to write file: %w", err))
+	}
+}
+
+func exitWithUserError(msg string) {
+	fmt.Println(msg)
+	os.Exit(1)
+}
+
 func ModsActivateCmd() *cobra.Command {
 
 	cfg := &ModsActivateCmdConfig{}
@@ -50,92 +128,33 @@ func ModsActivateCmd() *cobra.Command {
 		ValidArgsFunc: ValidAvailableModNameAndVersionArgsFunc(&cfg.Base),
 		Run: func(cmd *cobra.Command, args []string) {
 
+			fmt.Printf("activating mod %s, v %s\n", cfg.ModName.Value(), cfg.ModVersion.Value())
+
 			if cfg.ModName.Value() == "GustavDev" {
-				fmt.Println("Not allowed to deactivate GustavDev")
-				os.Exit(1)
+				exitWithUserError("Not allowed to activate GustavDev")
 			}
 
-			modXml := modsettingslsx.Load(&cfg.Base)
-			modsList := modXml.GetMods()
+			modsettings := modsettingslsx.Load(&cfg.Base)
 
-			activeModsLkup := lo.GroupBy(modsList, func(mod domain.Mod) string {
-				return mod.Name
-			})
-
+			activeMods := modsettings.GetMods()
 			availableMods := domain.ListAvailableMods(&cfg.Base)
-			var modToActivate domain.Mod
-			for _, mod := range availableMods {
-				if mod.Name == cfg.ModName.Value() && mod.Version64 == cfg.ModVersion.Value() {
-					fmt.Printf("activating mod %s, v %s\n", mod.Name, mod.Version64)
-					if activeModsLkup[mod.Name] != nil {
-						panic(fmt.Errorf("mod %s already active", mod.Name))
-					}
-					modsList = append(modsList, mod)
-					modToActivate = mod
-					break
-				}
+			mod, found := lo.Find(availableMods, func(mod domain.Mod) bool {
+				return mod.Name == cfg.ModName.Value() && mod.Version64 == cfg.ModVersion.Value()
+			})
+			if !found {
+				exitWithUserError(fmt.Sprintf("mod %s, v %s not found", cfg.ModName.Value(), cfg.ModVersion.Value()))
 			}
 
-			if modToActivate.Name == "" {
-				fmt.Printf("mod %s, v %s not found\n", cfg.ModName.Value(), cfg.ModVersion.Value())
-				os.Exit(1)
+			if lo.ContainsBy(activeMods, func(m domain.Mod) bool { return m.Name == cfg.ModName.Value() }) {
+				exitWithUserError(fmt.Sprintf("a mod with name %s is already active", cfg.ModName.Value()))
 			}
 
-			// Copy or symlink .pak files to the Mods dir
-			srcDir := filepath.Join(config.DownloadedModsDir(&cfg.Base), modToActivate.Name, modToActivate.Version64)
-			trgDir := config.Bg3ModInstallDir(&cfg.Base)
-			entries, err := os.ReadDir(srcDir)
-			if err != nil {
-				panic(fmt.Errorf("failed to read dir: %w", err))
-			}
-			for _, entry := range entries {
-				if strings.HasSuffix(strings.ToLower(entry.Name()), ".pak") {
-					// Copy file from src to
-					srcPath := filepath.Join(srcDir, entry.Name())
-					trgPath := filepath.Join(trgDir, entry.Name())
+			// First we must copy|symlink the required mod pak files
+			setupPakFileLinks(calculatePakFileLinks(&cfg.Base, mod))
 
-					// copy file solution
-					//func() { // for deferred file close
-					//	fmt.Printf("copying %s to %s\n", srcPath, trgPath)
-					//	trgFile, err := os.Create(trgPath)
-					//	if err != nil {
-					//		panic(fmt.Errorf("failed to create file: %w", err))
-					//	}
-					//	defer func() { _ = trgFile.Close() }()
-					//	srcFile, err := os.Open(srcPath)
-					//	if err != nil {
-					//		panic(fmt.Errorf("failed to open file: %w", err))
-					//	}
-					//	defer func() { _ = srcFile.Close() }()
-					//
-					//	_, err = io.Copy(trgFile, srcFile)
-					//	if err != nil {
-					//		panic(fmt.Errorf("failed to copy file: %w", err))
-					//	}
-					//}()
-					// symlink file solution
-					func() {
-						fmt.Printf("symlinking %s to %s\n", srcPath, trgPath)
-						err := os.Symlink(srcPath, trgPath)
-						if err != nil {
-							panic(fmt.Errorf("failed to symlink file: %w", err))
-						}
-					}()
-				}
-			}
-
-			modXml.SetMods(modsList)
-
-			newXml := modXml.ToXML()
-			fmt.Printf("new xml: \n%s\n", newXml)
-
-			xmlSavePath := config.Bg3ModsettingsFilePath(&cfg.Base)
-			fmt.Printf("saving to %s\n", xmlSavePath)
-
-			err = os.WriteFile(xmlSavePath, []byte(newXml), 0644)
-			if err != nil {
-				panic(fmt.Errorf("failed to write file: %w", err))
-			}
+			// Then we must update the modsettings file
+			modsettings.SetMods(activeMods)
+			storeModSettings(&cfg.Base, modsettings)
 		},
 	}.ToCmd()
 }
@@ -163,8 +182,8 @@ func ModsDeactivateCmd() *cobra.Command {
 				os.Exit(1)
 			}
 
-			modXml := modsettingslsx.Load(&cfg.Base)
-			modsBefore := modXml.GetMods()
+			modsettings := modsettingslsx.Load(&cfg.Base)
+			modsBefore := modsettings.GetMods()
 			modsAfter := lo.Filter(modsBefore, func(mod domain.Mod, _ int) bool {
 				return mod.Name != cfg.ModName.Value() || mod.Version64 != cfg.ModVersion.Value()
 			})
@@ -174,9 +193,9 @@ func ModsDeactivateCmd() *cobra.Command {
 				os.Exit(1)
 			}
 
-			modXml.SetMods(modsAfter)
+			modsettings.SetMods(modsAfter)
 
-			newXml := modXml.ToXML()
+			newXml := modsettings.ToXML()
 			fmt.Printf("new xml: \n%s\n", newXml)
 
 			xmlSavePath := config.Bg3ModsettingsFilePath(&cfg.Base)
