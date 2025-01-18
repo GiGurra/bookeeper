@@ -66,7 +66,7 @@ func InspectModZipUsingTempFolderExtract(
 
 func InspectModZip(
 	zipPath string,
-) (ModData ModData, PakFile string) {
+) (ModData ModData, PakFiles []string) {
 	if !config.ExistsFile(zipPath) {
 		panic(fmt.Errorf("mod zip file not found: %s", zipPath))
 	}
@@ -90,16 +90,13 @@ func InspectModZip(
 			foundInfoJson = file
 		}
 		if strings.HasSuffix(strings.ToLower(file.Name), ".pak") {
-			PakFile = file.Name
-		}
-		if foundInfoJson != nil && PakFile != "" {
-			break
+			PakFiles = append(PakFiles, file.Name)
 		}
 	}
 	if foundInfoJson == nil {
 		panic(fmt.Errorf("info.json not found in zip: %s", zipPath))
 	}
-	if PakFile == "" {
+	if len(PakFiles) == 0 {
 		panic(fmt.Errorf("no .pak file found in zip: %s", zipPath))
 	}
 
@@ -127,7 +124,7 @@ func InspectModZip(
 		panic(fmt.Errorf("failed to unmarshal json: %w", err))
 	}
 
-	return ModData, PakFile
+	return ModData, PakFiles
 }
 
 func DeflateZipFileToTempFolder(zipPath string) string {
