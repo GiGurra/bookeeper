@@ -12,8 +12,6 @@ import (
 
 func main() {
 
-	cobra.EnableCommandSorting = false
-
 	cfg := config.BaseConfig{}
 
 	boa.Wrap{
