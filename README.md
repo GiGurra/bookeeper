@@ -165,16 +165,6 @@ The easiest solution right now is to just create your load order once, with
 
 You can also just manually reorder the data in the stored profile json files in `~/.local/share/bookeeper/profiles`.
 
-## Configuration
-
-Default paths can be overridden with flags or environment variables:
-
-```bash
-  --steam-path string           Steam installation path (default "$HOME/.steam/steam")
-  --user-data-path string       Steam user data path (default "${SteamPath}/userdata/[0]")
-  --mods-install-dir string     BG3 mods installation directory
-  --mod-settings-lsx-path string BG3 modsettings.lsx path
-```
 
 ## Limitations
 
