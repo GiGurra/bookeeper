@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/google/go-cmp/cmp"
 	"log"
-	"os"
 	"strings"
 	"testing"
 )
@@ -94,11 +93,11 @@ var srcXmlData = `<?xml version="1.0" encoding="UTF-8"?>
   </region>
 </save>`
 
-var largeSrcXmlData = func() string {
-	bs, err := os.ReadFile("testdata/modsettings.lsx")
-	if err != nil {
-		panic(fmt.Errorf("failed to read testdata/modsettings.lsx: %w", err))
-	}
-
-	return string(bs)
-}()
+//var largeSrcXmlData = func() string {
+//	bs, err := os.ReadFile("testdata/modsettings.lsx")
+//	if err != nil {
+//		panic(fmt.Errorf("failed to read testdata/modsettings.lsx: %w", err))
+//	}
+//
+//	return string(bs)
+//}()

@@ -42,7 +42,7 @@ func MakeModAvailable(cfg *config.BaseConfig, zipFilePath string) {
 	}
 
 	// copy the pak files
-	modzip.ExtractSpecificFilesFromZip(zipFilePath, append(pakFiles), modPath)
+	modzip.ExtractSpecificFilesFromZip(zipFilePath, pakFiles, modPath)
 
 	// write an info.json file
 	bsToWrite, err := json.MarshalIndent(modData, "", "  ")
