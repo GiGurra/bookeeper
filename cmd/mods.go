@@ -6,8 +6,11 @@ import (
 	"github.com/GiGurra/bookeeper/pkg/common"
 	"github.com/GiGurra/bookeeper/pkg/config"
 	"github.com/GiGurra/bookeeper/pkg/domain"
+	"github.com/GiGurra/bookeeper/pkg/gui_tree"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
+	"github.com/xlab/treeprint"
+	"strconv"
 	"strings"
 )
 
@@ -26,6 +29,10 @@ func ModsCmd() *cobra.Command {
 			ModsDeactivateAllCmd(),
 			ModsMakeAvailableCmd(),
 			ModsMakeUnavailableCmd(),
+			ModsStatusCmd(),
+			MostList(),
+			MostListAvailable(),
+			MostListActive(),
 		},
 	}.ToCmd()
 }
@@ -142,6 +149,170 @@ func ModsMakeUnavailableCmd() *cobra.Command {
 		ValidArgsFunc: ValidAvailableModNameAndVersionArgsFunc(&cfg.Base),
 		Run: func(cmd *cobra.Command, args []string) {
 			domain.MakeModUnavailable(&cfg.Base, cfg.ModName.Value(), cfg.ModVersion.Value())
+		},
+	}.ToCmd()
+}
+
+func ModsStatusCmd() *cobra.Command {
+
+	cfg := &config.BaseConfig{}
+
+	return boa.Wrap{
+		Use:         "status",
+		Short:       "print mod status",
+		Params:      cfg,
+		ParamEnrich: boa.ParamEnricherDefault,
+		Run: func(cmd *cobra.Command, args []string) {
+
+			bg3SeDllPath := config.Bg3SeDllPath(cfg)
+			bg3SeInstalled := config.ExistsFile(bg3SeDllPath)
+
+			rootNode := treeprint.New() // NewWithRoot("Bookeeper Status")
+
+			///////////// bg3 paths /////////////////////////////////////////
+			bg3PathsNode := gui_tree.AddChildStr(rootNode, "bg3 paths")
+
+			installNode := gui_tree.AddKV(bg3PathsNode, "bg3 install dir", config.Bg3Path(cfg))
+
+			bg3SeNode := gui_tree.AddChildStr(installNode, "bg3se status")
+			gui_tree.AddKV(bg3SeNode, "installed", strconv.FormatBool(bg3SeInstalled))
+			gui_tree.MakeChildrenSameKeyLen(bg3SeNode)
+
+			///////////// Active mods /////////////////////////////////////////
+			activeModsTitle := "active mods"
+			if cfg.Verbose.Value() {
+				activeModsTitle += " (modsettings.lsx)"
+			}
+			bg3ActiveModsNode := gui_tree.AddChildStr(rootNode, activeModsTitle)
+			for _, mod := range domain.ListActiveMods(cfg) {
+				gui_tree.AddChild(bg3ActiveModsNode, gui_tree.DomainMod(mod, cfg.Verbose.Value()))
+				//gui_tree.AddKV(bg3ActiveModsNode, mod.Name, fmt.Sprintf("%s, v%s", mod.UUID, mod.Version64))
+			}
+			gui_tree.MakeChildrenSameKeyLen(bg3ActiveModsNode)
+
+			///////////// Profiles /////////////////////////////////////////
+			availableProfilesTitle := "available profiles"
+			if cfg.Verbose.Value() {
+				availableProfilesTitle += " (" + config.ProfilesDir(cfg) + ")"
+			}
+			gui_tree.AddChild(rootNode, gui_tree.DomainProfilesN(availableProfilesTitle, domain.ListProfiles(cfg), cfg.Verbose.Value()))
+
+			///////////// Available mods /////////////////////////////////////////
+			availableModsTitle := "available mods"
+			if cfg.Verbose.Value() {
+				availableModsTitle += " (" + config.DownloadedModsDir(cfg) + ")"
+			}
+			bg3DownloadedModsNode := rootNode.AddBranch(availableModsTitle)
+			for _, mod := range domain.ListAvailableMods(cfg) {
+				gui_tree.AddChild(bg3DownloadedModsNode, gui_tree.DomainMod(mod, cfg.Verbose.Value()))
+			}
+			gui_tree.MakeChildrenSameKeyLen(bg3DownloadedModsNode)
+
+			/////////////////////////////////////////////////////////////////////
+			fmt.Println(rootNode.String())
+		},
+	}.ToCmd()
+}
+
+func MostListActive() *cobra.Command {
+
+	cfg := &config.BaseConfig{}
+
+	return boa.Wrap{
+		Use:         "list-active",
+		Short:       "list active mods",
+		Params:      cfg,
+		ParamEnrich: boa.ParamEnricherDefault,
+		Run: func(cmd *cobra.Command, args []string) {
+
+			rootNode := treeprint.New() // NewWithRoot("Bookeeper Status")
+
+			///////////// Active mods /////////////////////////////////////////
+			activeModsTitle := "active mods"
+			if cfg.Verbose.Value() {
+				activeModsTitle += " (modsettings.lsx)"
+			}
+			bg3ActiveModsNode := gui_tree.AddChildStr(rootNode, activeModsTitle)
+			for _, mod := range domain.ListActiveMods(cfg) {
+				gui_tree.AddChild(bg3ActiveModsNode, gui_tree.DomainMod(mod, cfg.Verbose.Value()))
+				//gui_tree.AddKV(bg3ActiveModsNode, mod.Name, fmt.Sprintf("%s, v%s", mod.UUID, mod.Version64))
+			}
+			gui_tree.MakeChildrenSameKeyLen(bg3ActiveModsNode)
+
+			/////////////////////////////////////////////////////////////////////
+			fmt.Println(rootNode.String())
+		},
+	}.ToCmd()
+}
+
+func MostList() *cobra.Command {
+
+	cfg := &config.BaseConfig{}
+
+	return boa.Wrap{
+		Use:         "list",
+		Short:       "list active and available mods",
+		Params:      cfg,
+		ParamEnrich: boa.ParamEnricherDefault,
+		Run: func(cmd *cobra.Command, args []string) {
+
+			rootNode := treeprint.New() // NewWithRoot("Bookeeper Status")
+
+			///////////// Active mods /////////////////////////////////////////
+			activeModsTitle := "active mods"
+			if cfg.Verbose.Value() {
+				activeModsTitle += " (modsettings.lsx)"
+			}
+			bg3ActiveModsNode := gui_tree.AddChildStr(rootNode, activeModsTitle)
+			for _, mod := range domain.ListActiveMods(cfg) {
+				gui_tree.AddChild(bg3ActiveModsNode, gui_tree.DomainMod(mod, cfg.Verbose.Value()))
+				//gui_tree.AddKV(bg3ActiveModsNode, mod.Name, fmt.Sprintf("%s, v%s", mod.UUID, mod.Version64))
+			}
+			gui_tree.MakeChildrenSameKeyLen(bg3ActiveModsNode)
+
+			///////////// Available mods /////////////////////////////////////////
+			availableModsTitle := "available mods"
+			if cfg.Verbose.Value() {
+				availableModsTitle += " (" + config.DownloadedModsDir(cfg) + ")"
+			}
+			bg3DownloadedModsNode := rootNode.AddBranch(availableModsTitle)
+			for _, mod := range domain.ListAvailableMods(cfg) {
+				gui_tree.AddChild(bg3DownloadedModsNode, gui_tree.DomainMod(mod, cfg.Verbose.Value()))
+			}
+			gui_tree.MakeChildrenSameKeyLen(bg3DownloadedModsNode)
+
+			/////////////////////////////////////////////////////////////////////
+			fmt.Println(rootNode.String())
+		},
+	}.ToCmd()
+}
+
+func MostListAvailable() *cobra.Command {
+
+	cfg := &config.BaseConfig{}
+
+	return boa.Wrap{
+		Use:         "list-available",
+		Short:       "list available mods",
+		Params:      cfg,
+		ParamEnrich: boa.ParamEnricherDefault,
+		Run: func(cmd *cobra.Command, args []string) {
+
+			rootNode := treeprint.New() // NewWithRoot("Bookeeper Status")
+
+			///////////// Available mods /////////////////////////////////////////
+			availableModsTitle := "available mods"
+			if cfg.Verbose.Value() {
+				availableModsTitle += " (" + config.DownloadedModsDir(cfg) + ")"
+			}
+			bg3DownloadedModsNode := rootNode.AddBranch(availableModsTitle)
+			for _, mod := range domain.ListAvailableMods(cfg) {
+				gui_tree.AddChild(bg3DownloadedModsNode, gui_tree.DomainMod(mod, cfg.Verbose.Value()))
+			}
+			gui_tree.MakeChildrenSameKeyLen(bg3DownloadedModsNode)
+
+			/////////////////////////////////////////////////////////////////////
+			fmt.Println(rootNode.String())
 		},
 	}.ToCmd()
 }
