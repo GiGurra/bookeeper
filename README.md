@@ -77,6 +77,9 @@ lrwxrwxrwx 1 johkjo johkjo 161 jan 19 00:15 UnlockLevelCurve_Patch_5eSpells_Impr
 lrwxrwxrwx 1 johkjo johkjo 135 jan 19 00:15 UnlockLevelCurve_Patch_XP_x0.5.pak -> /home/johkjo/.local/share/bookeeper/downloaded_mods/UnlockLevelCurve_Patch_XP_x0.5/72057594037927960/UnlockLevelCurve_Patch_XP_x0.5.pak
 ```
 
+During the activation and deactivation processes, `bookeeper` will also adjust the `modsettings.lsx` for BG3 to load the
+mod during next startup.
+
 ### CLI help
 
 Experiment yourself. You can navigate the command tree and use `--help` on each level.
