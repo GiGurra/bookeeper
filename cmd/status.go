@@ -17,7 +17,7 @@ func StatusCmd() *cobra.Command {
 
 	return boa.Wrap{
 		Use:         "status",
-		Short:       "print mod status",
+		Short:       "prints full status (on 'everything')",
 		Params:      cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
 		Run: func(cmd *cobra.Command, args []string) {
