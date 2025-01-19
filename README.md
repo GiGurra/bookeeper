@@ -181,6 +181,7 @@ Default paths can be overridden with flags or environment variables:
 - No mod version conflict detection
 - Manual mod file downloading required
 - Only tested on Linux/Steam
+- No support for multiple mods in a single zip file
 
 ## Advanced
 
@@ -227,6 +228,22 @@ Example of fixed `5eSpells` `info.json`:
       "UUID": "fb5f528d-4d48-4bf2-a668-2274d3cfba96",
       "Folder": "5eSpells",
       "Version": "1"
+    }
+  ]
+}
+```
+
+The original `info.json` file for `5eSpells`:
+
+```json
+{
+  "mods": [
+    {
+      "modName": "5eSpells",
+      "UUID": "fb5f528d-4d48-4bf2-a668-2274d3cfba96",
+      "folderName": "5eSpells",
+      "version": "1",
+      "MD5": ""
     }
   ]
 }
