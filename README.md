@@ -182,6 +182,7 @@ Default paths can be overridden with flags or environment variables:
 - Manual mod file downloading required
 - Only tested on Linux/Steam
 - No support for multiple mods in a single zip file
+- No support for reading/analyzing mod .pak files.
 
 ## Advanced
 
