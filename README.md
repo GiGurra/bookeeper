@@ -154,6 +154,53 @@ Showing current status:
     └── [UnlockLevelCurve_Patch_XP_x0.5             ]  e53ae4b5-a922-47ef-b69d-d55c5745a65b, v 72057594037927960
 ```
 
+### Command tree
+
+The command tree is as follows (as of the time of writing this readme):
+
+```bash
+> bookeeper print-cmd-tree 
+[bookeeper]  Very basic cli mod manager for Baldur's Gate 3
+├── [bg3se]  operations related to bg3se (BG3 Script Extender)
+│   ├── [install]  download (from github) and install the latest version of bg3se
+│   └── [status ]  show status of bg3se (BG3 Script Extender)
+├── [completion]  Generate the autocompletion script for the specified shell
+│   ├── [bash      ]  Generate the autocompletion script for bash
+│   ├── [fish      ]  Generate the autocompletion script for fish
+│   ├── [powershell]  Generate the autocompletion script for powershell
+│   └── [zsh       ]  Generate the autocompletion script for zsh
+├── [get]  get specific path or info
+│   ├── [active-profile               ]  get value of active-profile
+│   ├── [all                          ]  get value of all
+│   ├── [bg3-bin-dir                  ]  get value of bg3-bin-dir
+│   ├── [bg3-dir                      ]  get value of bg3-dir
+│   ├── [bg3-mod-dir                  ]  get value of bg3-mod-dir
+│   ├── [bg3-modsettings-path         ]  get value of bg3-modsettings-path
+│   ├── [bookeeper-dir                ]  get value of bookeeper-dir
+│   ├── [bookeeper-downloaded-mods-dir]  get value of bookeeper-downloaded-mods-dir
+│   └── [bookeeper-profiles-dir       ]  get value of bookeeper-profiles-dir
+├── [help]  Help about any command
+├── [mods]  operations on mods
+│   ├── [activate        ]  activate a specific mod
+│   ├── [deactivate      ]  deactivate a specific mod
+│   ├── [deactivate-all  ]  deactivate all active mods
+│   ├── [list            ]  list active and available mods
+│   ├── [list-active     ]  list active mods
+│   ├── [list-available  ]  list available mods
+│   ├── [make-available  ]  make a new mod available
+│   ├── [make-unavailable]  make a mod unavailable
+│   └── [status          ]  print mod status
+├── [print-cmd-tree]  print the command tree
+├── [profiles]  operations on profiles
+│   ├── [deactivate-all]  deactivates all active mods, i.e. any profile
+│   ├── [delete        ]  delete a profile
+│   ├── [list          ]  status/list of profiles
+│   ├── [load          ]  load and activate a profile's mods
+│   ├── [save          ]  save current active mods to profile
+│   └── [status        ]  status/list of profiles
+└── [status]  prints full status (on 'everything')
+```
+
 ### Load order
 
 The only way currently to control mod load order is to deactivate and reactivate mods in the desired order,
@@ -164,7 +211,6 @@ The easiest solution right now is to just create your load order once, with
 `bookeeper profiles save <profile-name>`. Then you can just load that profile whenever.
 
 You can also just manually reorder the data in the stored profile json files in `~/.local/share/bookeeper/profiles`.
-
 
 ## Limitations
 
