@@ -138,6 +138,7 @@ Showing current status:
 │   ├── [UnlockLevelCurve                           ]  d903677e-f24b-48ec-ab20-98dcc116a371, v 72057594037927962
 │   ├── [UnlockLevelCurve_Patch_XP_x0.5             ]  e53ae4b5-a922-47ef-b69d-d55c5745a65b, v 72057594037927960
 │   └── [UnlockLevelCurve_Patch_5eSpells_Improvement]  4d00bc91-f3cb-430a-b86f-a59a6af2171e, v 72057594037927960
+├── [active profile]  op_andersson
 ├── available profiles
 │   ├── no_mods
 │   └── op_andersson
