@@ -226,8 +226,7 @@ Example of fixed `5eSpells` `info.json`:
       "Name": "5eSpells",
       "UUID": "fb5f528d-4d48-4bf2-a668-2274d3cfba96",
       "Folder": "5eSpells",
-      "version": "1",
-      "MD5": ""
+      "Version": "1"
     }
   ]
 }
