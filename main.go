@@ -5,8 +5,9 @@ import (
 	"github.com/GiGurra/boa/pkg/boa"
 	"github.com/GiGurra/bookeeper/cmd"
 	"github.com/GiGurra/bookeeper/pkg/config"
+	"github.com/GiGurra/bookeeper/pkg/gui_tree"
 	"github.com/spf13/cobra"
-	"strings"
+	"github.com/xlab/treeprint"
 )
 
 func main() {
@@ -29,12 +30,16 @@ func main() {
 	}.ToApp()
 }
 
-func printCommandTree(cmd *cobra.Command, level int) {
-	indent := strings.Repeat("  ", level)
-	fmt.Printf("%s%s - %s\n", indent, cmd.Name(), cmd.Short)
-	for _, subCmd := range cmd.Commands() {
-		printCommandTree(subCmd, level+1)
+func makeCmdTree(cmd *cobra.Command) treeprint.Tree {
+	tree := &treeprint.Node{
+		Meta:  cmd.Name(),
+		Value: cmd.Short,
 	}
+	for _, subCmd := range cmd.Commands() {
+		gui_tree.AddChild(tree, makeCmdTree(subCmd))
+	}
+	gui_tree.MakeChildrenSameKeyLen(tree)
+	return tree
 }
 
 func PrintCmdTreeCmd() *cobra.Command {
@@ -42,7 +47,7 @@ func PrintCmdTreeCmd() *cobra.Command {
 		Use:   "print-cmd-tree",
 		Short: "print the command tree",
 		Run: func(cmd *cobra.Command, args []string) {
-			printCommandTree(cmd.Root(), 0)
+			fmt.Println(makeCmdTree(cmd.Root()).String())
 		},
 	}.ToCmd()
 }

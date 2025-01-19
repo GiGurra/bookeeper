@@ -93,6 +93,9 @@ func MakeChildrenSameKeyLen(node treeprint.Tree) {
 	// pass 1, fetch the max key length
 	maxLen := 0
 	node.VisitAll(func(n *treeprint.Node) {
+		if n.Root != node {
+			return // dont go deeper than the first level
+		}
 		if n.Meta != nil {
 			str := fmt.Sprintf("%v", n.Meta)
 			if len(str) > maxLen {
@@ -103,6 +106,9 @@ func MakeChildrenSameKeyLen(node treeprint.Tree) {
 
 	// pass 2, pad the keys
 	node.VisitAll(func(n *treeprint.Node) {
+		if n.Root != node {
+			return // dont go deeper than the first level
+		}
 		if n.Meta != nil {
 			str := fmt.Sprintf("%v", n.Meta)
 			str = str + strings.Repeat(" ", maxLen-len(str))
