@@ -135,6 +135,9 @@ func ProfilesStatusCmd(name string) *cobra.Command {
 			gui_tree.MakeChildrenSameKeyLen(bookeeperPathsNode)
 
 			///////////// Profiles /////////////////////////////////////////
+
+			gui_tree.AddKV(rootNode, "active profile", domain.ActiveProfileName(cfg))
+
 			availableProfilesTitle := "available profiles"
 			if cfg.Verbose.Value() {
 				availableProfilesTitle += " (" + config.ProfilesDir(cfg) + ")"

@@ -538,6 +538,31 @@ func ListProfiles(cfg *config.BaseConfig) []Profile {
 
 }
 
+func ActiveProfileName(cfg *config.BaseConfig) string {
+	activeMods := lo.Filter(ListActiveMods(cfg), func(m Mod, _ int) bool {
+		return m.Name != "GustavDev"
+	})
+	profiles := ListProfiles(cfg)
+	for _, profile := range profiles {
+		profileMods := profile.Mods
+		if len(profileMods) == len(activeMods) {
+			isSame := true
+			for i := range profileMods {
+				activeMod := activeMods[i]
+				profileMod := profileMods[i]
+				if activeMod != profileMod {
+					isSame = false
+					break
+				}
+			}
+			if isSame {
+				return profile.Name
+			}
+		}
+	}
+	return ""
+}
+
 func LoadProfile(c *config.BaseConfig, profileName string) {
 	profile := GetProfile(c, profileName)
 	if profile == nil {

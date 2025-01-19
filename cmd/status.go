@@ -64,6 +64,9 @@ func StatusCmd() *cobra.Command {
 			gui_tree.MakeChildrenSameKeyLen(bg3ActiveModsNode)
 
 			///////////// Profiles /////////////////////////////////////////
+
+			gui_tree.AddKV(rootNode, "active profile", domain.ActiveProfileName(cfg))
+
 			availableProfilesTitle := "available profiles"
 			if cfg.Verbose.Value() {
 				availableProfilesTitle += " (" + config.ProfilesDir(cfg) + ")"

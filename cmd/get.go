@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/GiGurra/boa/pkg/boa"
 	"github.com/GiGurra/bookeeper/pkg/config"
+	"github.com/GiGurra/bookeeper/pkg/domain"
 	"github.com/GiGurra/bookeeper/pkg/gui_tree"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
@@ -30,6 +31,7 @@ func GetCmd() *cobra.Command {
 		{"bg3-modsettings-path", config.Bg3ModsettingsFilePath},
 		{"bg3-bin-dir", config.Bg3binPath},
 		{"bg3-mod-dir", config.Bg3ModInstallDir},
+		{"active-profile", domain.ActiveProfileName},
 	}
 
 	commands := append(individualCommands, SubCommand{"all", func(cfg *config.BaseConfig) string {
