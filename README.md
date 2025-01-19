@@ -211,7 +211,7 @@ The proper (I think :D, what I found in most mods) `info.json` format is:
 }
 ```
 
-Required fields are:
+Required fields (I guess?) are:
 
 - `Name`: The name of the mod
 - `Folder`: I dont really know what this is, but I think it has to be correct :D
