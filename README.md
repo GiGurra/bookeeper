@@ -115,7 +115,7 @@ Use "bookeeper [command] --help" for more information about a command.
 
 Showing current status:
 
-```bash
+```
 > bookeeper status
 .
 ├── bookeeper paths
@@ -158,7 +158,7 @@ Showing current status:
 
 The command tree is as follows (as of the time of writing this readme):
 
-```bash
+```
 > bookeeper print-cmd-tree 
 [bookeeper]  Very basic cli mod manager for Baldur's Gate 3
 ├── [bg3se]  operations related to bg3se (BG3 Script Extender)
