@@ -5,7 +5,9 @@ import (
 	"github.com/GiGurra/boa/pkg/boa"
 	"github.com/GiGurra/bookeeper/pkg/config"
 	"github.com/GiGurra/bookeeper/pkg/domain"
+	"github.com/GiGurra/bookeeper/pkg/gui_tree"
 	"github.com/spf13/cobra"
+	"github.com/xlab/treeprint"
 )
 
 func Profiles() *cobra.Command {
@@ -22,6 +24,8 @@ func Profiles() *cobra.Command {
 			ProfilesSaveCmd(),
 			ProfilesDeactivateCmd(),
 			ProfilesDeleteCmd(),
+			ProfilesStatusCmd("status"),
+			ProfilesStatusCmd("list"),
 		},
 	}.ToCmd()
 }
@@ -108,6 +112,37 @@ func ProfilesDeleteCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Printf("deleting profile %s\n", cfg.ProfileName.Value())
 			domain.DeleteProfile(&cfg.Base, cfg.ProfileName.Value())
+		},
+	}.ToCmd()
+}
+
+func ProfilesStatusCmd(name string) *cobra.Command {
+
+	cfg := &config.BaseConfig{}
+
+	return boa.Wrap{
+		Use:         name,
+		Short:       "status/list of profiles",
+		Params:      cfg,
+		ParamEnrich: boa.ParamEnricherDefault,
+		Run: func(cmd *cobra.Command, args []string) {
+
+			rootNode := treeprint.New() // NewWithRoot("Bookeeper Status")
+
+			///////////// bookeeper paths /////////////////////////////////////////
+			bookeeperPathsNode := gui_tree.AddChildStr(rootNode, "bookeeper paths")
+			gui_tree.AddKV(bookeeperPathsNode, "profiles", config.ProfilesDir(cfg))
+			gui_tree.MakeChildrenSameKeyLen(bookeeperPathsNode)
+
+			///////////// Profiles /////////////////////////////////////////
+			availableProfilesTitle := "available profiles"
+			if cfg.Verbose.Value() {
+				availableProfilesTitle += " (" + config.ProfilesDir(cfg) + ")"
+			}
+			gui_tree.AddChild(rootNode, gui_tree.DomainProfilesN(availableProfilesTitle, domain.ListProfiles(cfg), cfg.Verbose.Value()))
+
+			/////////////////////////////////////////////////////////////////////
+			fmt.Println(rootNode.String())
 		},
 	}.ToCmd()
 }
