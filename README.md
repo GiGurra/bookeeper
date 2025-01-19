@@ -190,7 +190,7 @@ Default paths can be overridden with flags or environment variables:
 NOTE: Some mods do come with a `info.json` file, but with incorrectly named keys. This will also not work.
 For example `5eSpells` comes with a `json.json` file with bad keys. You need to rename them to the proper key names.
 
-The proper `info.json` format is:
+The proper (I think :D, what I found in most mods) `info.json` format is:
 
 ```json
 {
