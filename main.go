@@ -30,15 +30,18 @@ func main() {
 	}.ToApp()
 }
 
-func makeCmdTree(cmd *cobra.Command) treeprint.Tree {
+func makeCmdTree(cmd *cobra.Command, level int) treeprint.Tree {
 	tree := &treeprint.Node{
 		Meta:  cmd.Name(),
 		Value: cmd.Short,
 	}
 	for _, subCmd := range cmd.Commands() {
-		gui_tree.AddChild(tree, makeCmdTree(subCmd))
+		gui_tree.AddChild(tree, makeCmdTree(subCmd, level+1))
 	}
-	gui_tree.MakeChildrenSameKeyLen(tree)
+	// only if we are 2 levels down
+	if level >= 1 {
+		gui_tree.MakeChildrenSameKeyLen(tree)
+	}
 	return tree
 }
 
@@ -47,7 +50,7 @@ func PrintCmdTreeCmd() *cobra.Command {
 		Use:   "print-cmd-tree",
 		Short: "print the command tree",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println(makeCmdTree(cmd.Root()).String())
+			fmt.Println(makeCmdTree(cmd.Root(), 0).String())
 		},
 	}.ToCmd()
 }
