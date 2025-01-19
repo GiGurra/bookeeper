@@ -6,7 +6,7 @@ import (
 	"github.com/GiGurra/boa/pkg/boa"
 	"os"
 	"path/filepath"
-	"strconv"
+	"regexp"
 	"strings"
 )
 
@@ -45,10 +45,10 @@ func replaceAllAliases(cfg *BaseConfig, str string) string {
 		panic("Steam path not set")
 	}
 
-	homeDir := HomeDir()
-	steamDir := strings.ReplaceAll(cfg.SteamPath.Value(), "${HOME}", HomeDir())
-
-	return strings.ReplaceAll(strings.ReplaceAll(str, "${HOME}", homeDir), "${SteamPath}", steamDir)
+	return ResolveStr(str, map[string]string{
+		"HOME":      HomeDir(),
+		"SteamPath": cfg.SteamPath.Value(),
+	})
 }
 
 func Bg3Path(cfg *BaseConfig) string {
@@ -65,6 +65,32 @@ func Bg3binPath(cfg *BaseConfig) string {
 
 func BooKeeperDir(cfg *BaseConfig) string {
 	return ensureExistsDir(filepath.Join(HomeDir(), ".local", "share", "bookeeper"))
+}
+
+var replaceVarRE = regexp.MustCompile(`\${([^}]+)}`)
+
+func ResolveStr(raw string, lkup map[string]string) string {
+	result := raw
+
+	// Keep resolving until no more changes (for nested dependencies)
+	for {
+		prev := result
+		result = replaceVarRE.ReplaceAllStringFunc(result, func(match string) string {
+			key := match[2 : len(match)-1] // Remove ${ and }
+			if val, ok := lkup[key]; ok {
+				return val
+			}
+			return match
+		})
+		if prev == result {
+			// check if there are any more variables to resolve, if so, panic
+			if strings.Contains(result, "$") {
+				panic(fmt.Errorf("failed to resolve all variables in string: %s, remaining: %s", raw, result))
+			}
+			break
+		}
+	}
+	return result
 }
 
 // ./.local/share/Steam/steamapps/compatdata/1086940/pfx/drive_c/users/steamuser/AppData/Local/Larian Studios/Baldur's Gate 3/Mods/
@@ -174,64 +200,65 @@ func ExistsFile(path string) bool {
 	return !info.IsDir()
 }
 
-// UserDataDir returns the path to the user data directory for the steam user.
-// This is typically ~/.local/share/Steam/userdata/<steam-user-id>.
-func UserDataDir(cfg *BaseConfig) string {
-	result := replaceAllAliases(cfg, cfg.UserDataPath.Value())
-	// Replace all [x] with the index/file listing
-	for strings.Contains(result, "[") {
-		start := strings.Index(result, "[")
-		end := strings.Index(result, "]")
-		indexStr := result[start+1 : end]
-		index, err := strconv.Atoi(indexStr)
-		if err != nil {
-			panic(fmt.Errorf("failed to parse index in path: %s: %w", indexStr, err))
-		}
-		replace := result[start : end+1]
-		result = strings.ReplaceAll(result, replace, "")
-		currentPath := result[:start]
-		entries, err := os.ReadDir(currentPath)
-		if err != nil {
-			panic(fmt.Errorf("failed to read directory %s: %w", currentPath, err))
-		}
-		var dirs []string
-		for _, entry := range entries {
-			if entry.IsDir() {
-				dirs = append(dirs, entry.Name())
-			}
-		}
-		if len(dirs) == 0 {
-			panic(fmt.Errorf("no entries found in directory %s", currentPath))
-		}
-		if index >= len(dirs) {
-			panic(fmt.Errorf("index %d out of bounds in directory %s", index, currentPath))
-		}
-		if index < 0 {
-			panic(fmt.Errorf("index %d out of bounds in directory %s", index, currentPath))
-		}
-
-		result = filepath.Join(result, dirs[index])
-	}
-	return result
-}
+//
+//// UserDataDir returns the path to the user data directory for the steam user.
+//// This is typically ~/.local/share/Steam/userdata/<steam-user-id>.
+//func UserDataDir(cfg *BaseConfig) string {
+//	result := replaceAllAliases(cfg, cfg.UserDataPath.Value())
+//	// Replace all [x] with the index/file listing
+//	for strings.Contains(result, "[") {
+//		start := strings.Index(result, "[")
+//		end := strings.Index(result, "]")
+//		indexStr := result[start+1 : end]
+//		index, err := strconv.Atoi(indexStr)
+//		if err != nil {
+//			panic(fmt.Errorf("failed to parse index in path: %s: %w", indexStr, err))
+//		}
+//		replace := result[start : end+1]
+//		result = strings.ReplaceAll(result, replace, "")
+//		currentPath := result[:start]
+//		entries, err := os.ReadDir(currentPath)
+//		if err != nil {
+//			panic(fmt.Errorf("failed to read directory %s: %w", currentPath, err))
+//		}
+//		var dirs []string
+//		for _, entry := range entries {
+//			if entry.IsDir() {
+//				dirs = append(dirs, entry.Name())
+//			}
+//		}
+//		if len(dirs) == 0 {
+//			panic(fmt.Errorf("no entries found in directory %s", currentPath))
+//		}
+//		if index >= len(dirs) {
+//			panic(fmt.Errorf("index %d out of bounds in directory %s", index, currentPath))
+//		}
+//		if index < 0 {
+//			panic(fmt.Errorf("index %d out of bounds in directory %s", index, currentPath))
+//		}
+//
+//		result = filepath.Join(result, dirs[index])
+//	}
+//	return result
+//}
 
 // Bg3UserDataDir returns the path to the user data directory for the steam user for BG3.
 // This is typically ~/.local/share/Steam/userdata/<steam-user-id>/1086940.
-func Bg3UserDataDir(cfg *BaseConfig) string {
-	return filepath.Join(UserDataDir(cfg), SteamBg3AppID)
-}
-
-func Bg3SaveDir(cfg *BaseConfig) string {
-	return filepath.Join(Bg3UserDataDir(cfg), "remote", "_SAVE_Public", "Savegames", "Story")
-}
-
-func Bg3ProfileDir(cfg *BaseConfig) string {
-	return filepath.Join(Bg3UserDataDir(cfg), "remote", "_PROFILE_Public")
-}
-
-func Bg3UserdataModsettingsFilePath(cfg *BaseConfig) string {
-	return filepath.Join(Bg3ProfileDir(cfg), "modsettings.lsx")
-}
+//func Bg3UserDataDir(cfg *BaseConfig) string {
+//	return filepath.Join(UserDataDir(cfg), SteamBg3AppID)
+//}
+//
+//func Bg3SaveDir(cfg *BaseConfig) string {
+//	return filepath.Join(Bg3UserDataDir(cfg), "remote", "_SAVE_Public", "Savegames", "Story")
+//}
+//
+//func Bg3ProfileDir(cfg *BaseConfig) string {
+//	return filepath.Join(Bg3UserDataDir(cfg), "remote", "_PROFILE_Public")
+//}
+//
+//func Bg3UserdataModsettingsFilePath(cfg *BaseConfig) string {
+//	return filepath.Join(Bg3ProfileDir(cfg), "modsettings.lsx")
+//}
 
 // "/home/johkjo/.local/share/Steam/steamapps/compatdata/1086940/pfx/drive_c/users/steamuser/AppData/Local/Larian Studios/Baldur's Gate 3/PlayerProfiles/Public/modsettings.lsx"
 func Bg3ModsettingsFilePath(cfg *BaseConfig) string {

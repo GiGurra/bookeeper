@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"github.com/GiGurra/boa/pkg/boa"
-	"github.com/google/go-cmp/cmp"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -61,63 +60,64 @@ func TestBg3binPath(t *testing.T) {
 	}
 }
 
-func TestUserDataDir(t *testing.T) {
-	cfg := validateConfig(&BaseConfig{})
-	expectedPrefix := HomeDir() + "/.steam/steam/userdata/"
-	result := UserDataDir(cfg)
-	if len(result) < len(expectedPrefix) {
-		t.Fatalf("UserDataDir() returned unexpected value")
-	}
-	resultPrefix := result[:len(expectedPrefix)]
-	if diff := cmp.Diff(resultPrefix, expectedPrefix); diff != "" {
-		t.Fatalf("UserDataDir() returned unexpected value, diff: %s", diff)
-	}
+//func TestUserDataDir(t *testing.T) {
+//	cfg := validateConfig(&BaseConfig{})
+//	expectedPrefix := HomeDir() + "/.steam/steam/userdata/"
+//	result := UserDataDir(cfg)
+//	if len(result) < len(expectedPrefix) {
+//		t.Fatalf("UserDataDir() returned unexpected value")
+//	}
+//	resultPrefix := result[:len(expectedPrefix)]
+//	if diff := cmp.Diff(resultPrefix, expectedPrefix); diff != "" {
+//		t.Fatalf("UserDataDir() returned unexpected value, diff: %s", diff)
+//	}
+//
+//	if !ExistsDir(result) {
+//		t.Fatalf("UserDataDir() did not return a directory")
+//	}
+//
+//	slog.Info(fmt.Sprintf("UserDataDir(): %s", result))
+//}
 
-	if !ExistsDir(result) {
-		t.Fatalf("UserDataDir() did not return a directory")
-	}
-
-	slog.Info(fmt.Sprintf("UserDataDir(): %s", result))
-}
-
-func TestBg3SaveDir(t *testing.T) {
-	cfg := validateConfig(&BaseConfig{})
-	result := Bg3SaveDir(cfg)
-
-	slog.Info(fmt.Sprintf("Bg3SaveDir(): %s", result))
-
-	if !ExistsDir(result) {
-		t.Fatalf("Bg3SaveDir() did not return a directory")
-	}
-}
-
-func TestBg3ProfileDir(t *testing.T) {
-	cfg := validateConfig(&BaseConfig{})
-	result := Bg3ProfileDir(cfg)
-
-	slog.Info(fmt.Sprintf("Bg3ProfileDir(): %s", result))
-
-	if !ExistsDir(result) {
-		t.Fatalf("Bg3ProfileDir() did not return a directory")
-	}
-
-	// should be a modsettings.lsx file in the profile dir
-	modSettingsPath := filepath.Join(result, "modsettings.lsx")
-	if !ExistsFile(modSettingsPath) {
-		t.Fatalf("Bg3ProfileDir() did not return a directory with a modsettings.lsx file")
-	}
-}
-
-func TestBg3ModsettingsFilePath(t *testing.T) {
-	cfg := validateConfig(&BaseConfig{})
-	result := Bg3UserdataModsettingsFilePath(cfg)
-
-	slog.Info(fmt.Sprintf("Bg3UserdataModsettingsFilePath(): %s", result))
-
-	if !ExistsFile(result) {
-		t.Fatalf("Bg3UserdataModsettingsFilePath() did not return a file")
-	}
-}
+//
+//func TestBg3SaveDir(t *testing.T) {
+//	cfg := validateConfig(&BaseConfig{})
+//	result := Bg3SaveDir(cfg)
+//
+//	slog.Info(fmt.Sprintf("Bg3SaveDir(): %s", result))
+//
+//	if !ExistsDir(result) {
+//		t.Fatalf("Bg3SaveDir() did not return a directory")
+//	}
+//}
+//
+//func TestBg3ProfileDir(t *testing.T) {
+//	cfg := validateConfig(&BaseConfig{})
+//	result := Bg3ProfileDir(cfg)
+//
+//	slog.Info(fmt.Sprintf("Bg3ProfileDir(): %s", result))
+//
+//	if !ExistsDir(result) {
+//		t.Fatalf("Bg3ProfileDir() did not return a directory")
+//	}
+//
+//	// should be a modsettings.lsx file in the profile dir
+//	modSettingsPath := filepath.Join(result, "modsettings.lsx")
+//	if !ExistsFile(modSettingsPath) {
+//		t.Fatalf("Bg3ProfileDir() did not return a directory with a modsettings.lsx file")
+//	}
+//}
+//
+//func TestBg3ModsettingsFilePath(t *testing.T) {
+//	cfg := validateConfig(&BaseConfig{})
+//	result := Bg3UserdataModsettingsFilePath(cfg)
+//
+//	slog.Info(fmt.Sprintf("Bg3UserdataModsettingsFilePath(): %s", result))
+//
+//	if !ExistsFile(result) {
+//		t.Fatalf("Bg3UserdataModsettingsFilePath() did not return a file")
+//	}
+//}
 
 func TestBg3MidsettingsFilePath(t *testing.T) {
 	cfg := validateConfig(&BaseConfig{})
@@ -162,5 +162,24 @@ func TestBooKeeperCfgDir(t *testing.T) {
 
 	if !ExistsDir(result) {
 		t.Fatalf("BooKeeperDir() did not return a directory")
+	}
+}
+
+func TestResolveStr(t *testing.T) {
+	mapping := map[string]string{
+		"HOME":      "/home/user",
+		"Something": "folder",
+		"NESTED":    "${HOME}/nested",
+	}
+
+	path := ResolveStr("${HOME}/${Something}/a/b/c", mapping)
+	nested := ResolveStr("${NESTED}/file.txt", mapping)
+
+	if path != "/home/user/folder/a/b/c" {
+		t.Fatalf("ResolveStr() returned unexpected value")
+	}
+
+	if nested != "/home/user/nested/file.txt" {
+		t.Fatalf("ResolveStr() returned unexpected value")
 	}
 }
