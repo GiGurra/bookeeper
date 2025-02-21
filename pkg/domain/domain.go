@@ -180,6 +180,13 @@ func CalculatePakFileLinks(
 		panic(fmt.Errorf("mod dir %s does not exist. Cannot calculate pak file links for mod activation/deactivation", srcDir))
 	}
 
+	if !config.ExistsDir(trgDir) {
+		err := os.MkdirAll(trgDir, os.ModePerm)
+		if err != nil {
+			panic(fmt.Errorf("failed to create mod dir: %w", err))
+		}
+	}
+
 	entries, err := os.ReadDir(srcDir)
 	if err != nil {
 		panic(fmt.Errorf("failed to read dir: %w", err))
