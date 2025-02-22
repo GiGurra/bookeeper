@@ -290,6 +290,21 @@ The original `info.json` file for `5eSpells`:
 }
 ```
 
+### Use inside a Wolf game streaming container
+
+To install bookeeper inside a Wolf container, you need to compile it with static linking
+and place it within the Steam app state folder. E.g.
+
+```
+> CGO_ENABLED=0 GOBIN=/etc/wolf/12345678/Steam go install github.com/GiGurra/bookeeper@latest
+```
+
+if your app state folder is `/etc/wolf/12345678`. Running `bookeeper` from the terminal
+within the Steam app container, the bookeeper directory will end up in e.g.
+`/etc/wolf/12345678/Steam/.local/share/bookeeper` within the host filesystem. You might
+need to change the Steam setting Display->"Big Picture Settings"->Windowed to true to be
+able to access the start terminal button on the upper left on the screen. 
+
 ## License
 
 MIT
