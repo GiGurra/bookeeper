@@ -15,6 +15,9 @@ func validateConfig[CFG any](cfg *CFG) *CFG {
 }
 
 func TestSteamPath(t *testing.T) {
+	if isRunningOnGithubActions() {
+		t.Skip("Skipping test on GitHub Actions, as it does not have a valid Steam path.")
+	}
 	cfg := validateConfig(&BaseConfig{})
 	if SteamPath(cfg) != HomeDir()+"/.steam/steam" {
 		t.Fatalf("SteamPath() returned unexpected value")
@@ -22,6 +25,9 @@ func TestSteamPath(t *testing.T) {
 }
 
 func TestHomeDir(t *testing.T) {
+	if isRunningOnGithubActions() {
+		t.Skip("Skipping test on GitHub Actions, as it does not have a valid Steam path.")
+	}
 	if HomeDir() == "" {
 		t.Fatalf("HomeDir() returned empty string")
 	}
@@ -37,6 +43,9 @@ func TestHomeDir(t *testing.T) {
 }
 
 func TestBg3Path(t *testing.T) {
+	if isRunningOnGithubActions() {
+		t.Skip("Skipping test on GitHub Actions, as it does not have a valid Steam path.")
+	}
 	cfg := validateConfig(&BaseConfig{})
 	if Bg3Path(cfg) != HomeDir()+"/.steam/steam/steamapps/common/Baldurs Gate 3" {
 		t.Fatalf("Bg3Path() returned unexpected value")
@@ -50,6 +59,9 @@ func TestBg3Path(t *testing.T) {
 }
 
 func TestBg3binPath(t *testing.T) {
+	if isRunningOnGithubActions() {
+		t.Skip("Skipping test on GitHub Actions, as it does not have a valid Steam path.")
+	}
 	cfg := validateConfig(&BaseConfig{})
 	result := Bg3binPath(cfg)
 
@@ -120,6 +132,9 @@ func TestBg3binPath(t *testing.T) {
 //}
 
 func TestBg3MidsettingsFilePath(t *testing.T) {
+	if isRunningOnGithubActions() {
+		t.Skip("Skipping test on GitHub Actions, as it does not have a valid Steam path.")
+	}
 	cfg := validateConfig(&BaseConfig{})
 	result := Bg3ModsettingsFilePath(cfg)
 
@@ -131,6 +146,9 @@ func TestBg3MidsettingsFilePath(t *testing.T) {
 }
 
 func TestBg3SeDllPath(t *testing.T) {
+	if isRunningOnGithubActions() {
+		t.Skip("Skipping test on GitHub Actions, as it does not have a valid Steam path.")
+	}
 	cfg := validateConfig(&BaseConfig{})
 	result := Bg3SeDllPath(cfg)
 
@@ -144,6 +162,9 @@ func TestBg3SeDllPath(t *testing.T) {
 }
 
 func TestBg3ModInstallDir(t *testing.T) {
+	if isRunningOnGithubActions() {
+		t.Skip("Skipping test on GitHub Actions, as it does not have a valid Steam path.")
+	}
 	cfg := validateConfig(&BaseConfig{})
 	result := Bg3ModInstallDir(cfg)
 
