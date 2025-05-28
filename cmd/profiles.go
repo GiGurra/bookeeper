@@ -14,12 +14,12 @@ func Profiles() *cobra.Command {
 
 	cfg := &config.BaseConfig{}
 
-	return boa.Wrap{
+	return boa.Cmd{
 		Use:         "profiles",
 		Short:       "operations on profiles",
 		Params:      cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
-		SubCommands: []*cobra.Command{
+		SubCmds: []*cobra.Command{
 			ProfilesLoadCmd(),
 			ProfilesSaveCmd(),
 			ProfilesDeactivateCmd(),
@@ -27,7 +27,7 @@ func Profiles() *cobra.Command {
 			ProfilesStatusCmd("status"),
 			ProfilesStatusCmd("list"),
 		},
-	}.ToCmd()
+	}.ToCobra()
 }
 
 type ProfilesLoadCmdConfig struct {
@@ -39,17 +39,17 @@ func ProfilesLoadCmd() *cobra.Command {
 
 	cfg := &ProfilesLoadCmdConfig{}
 
-	return boa.Wrap{
+	return boa.Cmd{
 		Use:           "load",
 		Short:         "load and activate a profile's mods",
 		Params:        cfg,
 		ParamEnrich:   boa.ParamEnricherDefault,
 		ValidArgsFunc: ValidAvailableProfileNameAndVersionArgsFunc(&cfg.Base),
-		Run: func(cmd *cobra.Command, args []string) {
+		RunFunc: func(cmd *cobra.Command, args []string) {
 			fmt.Printf("loading profile %s\n", cfg.ProfileName.Value())
 			domain.LoadProfile(&cfg.Base, cfg.ProfileName.Value())
 		},
-	}.ToCmd()
+	}.ToCobra()
 }
 
 type ProfilesSaveCmdConfig struct {
@@ -61,17 +61,17 @@ func ProfilesSaveCmd() *cobra.Command {
 
 	cfg := &ProfilesSaveCmdConfig{}
 
-	return boa.Wrap{
+	return boa.Cmd{
 		Use:           "save",
 		Short:         "save current active mods to profile",
 		Params:        cfg,
 		ParamEnrich:   boa.ParamEnricherDefault,
 		ValidArgsFunc: ValidAvailableModNameAndVersionArgsFunc(&cfg.Base),
-		Run: func(cmd *cobra.Command, args []string) {
+		RunFunc: func(cmd *cobra.Command, args []string) {
 			fmt.Printf("saving active mods to profile %s\n", cfg.ProfileName.Value())
 			domain.SaveProfile(&cfg.Base, cfg.ProfileName.Value())
 		},
-	}.ToCmd()
+	}.ToCobra()
 }
 
 type ProfilesDeactivateCmdConfig struct {
@@ -82,16 +82,16 @@ func ProfilesDeactivateCmd() *cobra.Command {
 
 	cfg := &ProfilesDeactivateCmdConfig{}
 
-	return boa.Wrap{
+	return boa.Cmd{
 		Use:         "deactivate-all",
 		Short:       "deactivates all active mods, i.e. any profile",
 		Params:      cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
-		Run: func(cmd *cobra.Command, args []string) {
+		RunFunc: func(cmd *cobra.Command, args []string) {
 			fmt.Printf("deactivating all active mods\n")
 			domain.DeactivateAllMods(&cfg.Base)
 		},
-	}.ToCmd()
+	}.ToCobra()
 }
 
 type ProfilesDeleteCmdConfig struct {
@@ -103,29 +103,29 @@ func ProfilesDeleteCmd() *cobra.Command {
 
 	cfg := &ProfilesDeleteCmdConfig{}
 
-	return boa.Wrap{
+	return boa.Cmd{
 		Use:           "delete",
 		Short:         "delete a profile",
 		Params:        cfg,
 		ParamEnrich:   boa.ParamEnricherDefault,
 		ValidArgsFunc: ValidAvailableProfileNameAndVersionArgsFunc(&cfg.Base),
-		Run: func(cmd *cobra.Command, args []string) {
+		RunFunc: func(cmd *cobra.Command, args []string) {
 			fmt.Printf("deleting profile %s\n", cfg.ProfileName.Value())
 			domain.DeleteProfile(&cfg.Base, cfg.ProfileName.Value())
 		},
-	}.ToCmd()
+	}.ToCobra()
 }
 
 func ProfilesStatusCmd(name string) *cobra.Command {
 
 	cfg := &config.BaseConfig{}
 
-	return boa.Wrap{
+	return boa.Cmd{
 		Use:         name,
 		Short:       "status/list of profiles",
 		Params:      cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
-		Run: func(cmd *cobra.Command, args []string) {
+		RunFunc: func(cmd *cobra.Command, args []string) {
 
 			rootNode := treeprint.New() // NewWithRoot("Bookeeper Status")
 
@@ -147,7 +147,7 @@ func ProfilesStatusCmd(name string) *cobra.Command {
 			/////////////////////////////////////////////////////////////////////
 			fmt.Println(rootNode.String())
 		},
-	}.ToCmd()
+	}.ToCobra()
 }
 
 func ValidAvailableProfileNameAndVersionArgsFunc(cfg *config.BaseConfig) func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {

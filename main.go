@@ -14,10 +14,10 @@ func main() {
 
 	cfg := config.BaseConfig{}
 
-	boa.Wrap{
+	boa.Cmd{
 		Use:   "bookeeper",
 		Short: "Very basic cli mod manager for Baldur's Gate 3",
-		SubCommands: []*cobra.Command{
+		SubCmds: []*cobra.Command{
 			cmd.StatusCmd(),
 			cmd.GetCmd(),
 			cmd.ModsCmd(),
@@ -27,7 +27,7 @@ func main() {
 		},
 		Params:      &cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
-	}.ToApp()
+	}.Run()
 }
 
 func makeCmdTree(cmd *cobra.Command, level int) treeprint.Tree {
@@ -46,11 +46,11 @@ func makeCmdTree(cmd *cobra.Command, level int) treeprint.Tree {
 }
 
 func PrintCmdTreeCmd() *cobra.Command {
-	return boa.Wrap{
+	return boa.Cmd{
 		Use:   "print-cmd-tree",
 		Short: "print the command tree",
-		Run: func(cmd *cobra.Command, args []string) {
+		RunFunc: func(cmd *cobra.Command, args []string) {
 			fmt.Println(makeCmdTree(cmd.Root(), 0).String())
 		},
-	}.ToCmd()
+	}.ToCobra()
 }

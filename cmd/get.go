@@ -43,25 +43,25 @@ func GetCmd() *cobra.Command {
 		return rootNode.String()
 	}})
 
-	return boa.Wrap{
+	return boa.Cmd{
 		Use:         "get",
 		Short:       "get specific path or info",
 		Params:      cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
-		SubCommands: lo.Map(commands, func(command SubCommand, _ int) *cobra.Command {
+		SubCmds: lo.Map(commands, func(command SubCommand, _ int) *cobra.Command {
 
 			cfg := &GetCmdConfig{}
 
-			return boa.Wrap{
+			return boa.Cmd{
 				Use:         command.Name,
 				Short:       "get value of " + command.Name,
 				Params:      cfg,
 				ParamEnrich: boa.ParamEnricherDefault,
-				Run: func(cmd *cobra.Command, args []string) {
+				RunFunc: func(cmd *cobra.Command, args []string) {
 					result := command.Handler(&cfg.Base)
 					fmt.Println(result)
 				},
-			}.ToCmd()
+			}.ToCobra()
 		}),
-	}.ToCmd()
+	}.ToCobra()
 }

@@ -18,12 +18,12 @@ func ModsCmd() *cobra.Command {
 
 	cfg := &config.BaseConfig{}
 
-	return boa.Wrap{
+	return boa.Cmd{
 		Use:         "mods",
 		Short:       "operations on mods",
 		Params:      cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
-		SubCommands: []*cobra.Command{
+		SubCmds: []*cobra.Command{
 			ModsActivateCmd(),
 			ModsDeactivateCmd(),
 			ModsDeactivateAllCmd(),
@@ -34,7 +34,7 @@ func ModsCmd() *cobra.Command {
 			MostListAvailable(),
 			MostListActive(),
 		},
-	}.ToCmd()
+	}.ToCobra()
 }
 
 type ModsActivateCmdConfig struct {
@@ -47,13 +47,13 @@ func ModsActivateCmd() *cobra.Command {
 
 	cfg := &ModsActivateCmdConfig{}
 
-	return boa.Wrap{
+	return boa.Cmd{
 		Use:           "activate",
 		Short:         "activate a specific mod",
 		Params:        cfg,
 		ParamEnrich:   boa.ParamEnricherDefault,
 		ValidArgsFunc: ValidAvailableModNameAndVersionArgsFunc(&cfg.Base),
-		Run: func(cmd *cobra.Command, args []string) {
+		RunFunc: func(cmd *cobra.Command, args []string) {
 
 			fmt.Printf("activating mod %s, v %s\n", cfg.ModName.Value(), cfg.ModVersion.Value())
 
@@ -64,7 +64,7 @@ func ModsActivateCmd() *cobra.Command {
 			domain.ActivateMod(&cfg.Base, cfg.ModName.Value(), cfg.ModVersion.Value())
 
 		},
-	}.ToCmd()
+	}.ToCobra()
 }
 
 type ModsDeactivateCmdConfig struct {
@@ -77,13 +77,13 @@ func ModsDeactivateCmd() *cobra.Command {
 
 	cfg := &ModsDeactivateCmdConfig{}
 
-	return boa.Wrap{
+	return boa.Cmd{
 		Use:           "deactivate",
 		Short:         "deactivate a specific mod",
 		Params:        cfg,
 		ParamEnrich:   boa.ParamEnricherDefault,
 		ValidArgsFunc: ValidActiveModNameAndVersionArgsFunc(&cfg.Base),
-		Run: func(cmd *cobra.Command, args []string) {
+		RunFunc: func(cmd *cobra.Command, args []string) {
 
 			fmt.Printf("deactivating mod %s, v %s\n", cfg.ModName.Value(), cfg.ModVersion.Value())
 
@@ -93,22 +93,22 @@ func ModsDeactivateCmd() *cobra.Command {
 
 			domain.DeactivateMod(&cfg.Base, cfg.ModName.Value(), cfg.ModVersion.Value())
 		},
-	}.ToCmd()
+	}.ToCobra()
 }
 
 func ModsDeactivateAllCmd() *cobra.Command {
 
 	cfg := &config.BaseConfig{}
 
-	return boa.Wrap{
+	return boa.Cmd{
 		Use:         "deactivate-all",
 		Short:       "deactivate all active mods",
 		Params:      cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
-		Run: func(cmd *cobra.Command, args []string) {
+		RunFunc: func(cmd *cobra.Command, args []string) {
 			domain.DeactivateAllMods(cfg)
 		},
-	}.ToCmd()
+	}.ToCobra()
 }
 
 type ModsMakeAvailableCmdConfig struct {
@@ -120,15 +120,15 @@ func ModsMakeAvailableCmd() *cobra.Command {
 
 	cfg := &ModsMakeAvailableCmdConfig{}
 
-	return boa.Wrap{
+	return boa.Cmd{
 		Use:         "make-available",
 		Short:       "make a new mod available",
 		Params:      cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
-		Run: func(cmd *cobra.Command, args []string) {
+		RunFunc: func(cmd *cobra.Command, args []string) {
 			domain.MakeModAvailable(&cfg.Base, cfg.ModZipPath.Value())
 		},
-	}.ToCmd()
+	}.ToCobra()
 }
 
 type ModsMakeUnavailableCmdConfig struct {
@@ -141,28 +141,28 @@ func ModsMakeUnavailableCmd() *cobra.Command {
 
 	cfg := &ModsMakeUnavailableCmdConfig{}
 
-	return boa.Wrap{
+	return boa.Cmd{
 		Use:           "make-unavailable",
 		Short:         "make a mod unavailable",
 		Params:        cfg,
 		ParamEnrich:   boa.ParamEnricherDefault,
 		ValidArgsFunc: ValidAvailableModNameAndVersionArgsFunc(&cfg.Base),
-		Run: func(cmd *cobra.Command, args []string) {
+		RunFunc: func(cmd *cobra.Command, args []string) {
 			domain.MakeModUnavailable(&cfg.Base, cfg.ModName.Value(), cfg.ModVersion.Value())
 		},
-	}.ToCmd()
+	}.ToCobra()
 }
 
 func ModsStatusCmd() *cobra.Command {
 
 	cfg := &config.BaseConfig{}
 
-	return boa.Wrap{
+	return boa.Cmd{
 		Use:         "status",
 		Short:       "print mod status",
 		Params:      cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
-		Run: func(cmd *cobra.Command, args []string) {
+		RunFunc: func(cmd *cobra.Command, args []string) {
 
 			bg3SeDllPath := config.Bg3SeDllPath(cfg)
 			bg3SeInstalled := config.ExistsFile(bg3SeDllPath)
@@ -204,19 +204,19 @@ func ModsStatusCmd() *cobra.Command {
 			/////////////////////////////////////////////////////////////////////
 			fmt.Println(rootNode.String())
 		},
-	}.ToCmd()
+	}.ToCobra()
 }
 
 func MostListActive() *cobra.Command {
 
 	cfg := &config.BaseConfig{}
 
-	return boa.Wrap{
+	return boa.Cmd{
 		Use:         "list-active",
 		Short:       "list active mods",
 		Params:      cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
-		Run: func(cmd *cobra.Command, args []string) {
+		RunFunc: func(cmd *cobra.Command, args []string) {
 
 			rootNode := treeprint.New() // NewWithRoot("Bookeeper Status")
 
@@ -235,19 +235,19 @@ func MostListActive() *cobra.Command {
 			/////////////////////////////////////////////////////////////////////
 			fmt.Println(rootNode.String())
 		},
-	}.ToCmd()
+	}.ToCobra()
 }
 
 func MostList() *cobra.Command {
 
 	cfg := &config.BaseConfig{}
 
-	return boa.Wrap{
+	return boa.Cmd{
 		Use:         "list",
 		Short:       "list active and available mods",
 		Params:      cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
-		Run: func(cmd *cobra.Command, args []string) {
+		RunFunc: func(cmd *cobra.Command, args []string) {
 
 			rootNode := treeprint.New() // NewWithRoot("Bookeeper Status")
 
@@ -277,19 +277,19 @@ func MostList() *cobra.Command {
 			/////////////////////////////////////////////////////////////////////
 			fmt.Println(rootNode.String())
 		},
-	}.ToCmd()
+	}.ToCobra()
 }
 
 func MostListAvailable() *cobra.Command {
 
 	cfg := &config.BaseConfig{}
 
-	return boa.Wrap{
+	return boa.Cmd{
 		Use:         "list-available",
 		Short:       "list available mods",
 		Params:      cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
-		Run: func(cmd *cobra.Command, args []string) {
+		RunFunc: func(cmd *cobra.Command, args []string) {
 
 			rootNode := treeprint.New() // NewWithRoot("Bookeeper Status")
 
@@ -307,7 +307,7 @@ func MostListAvailable() *cobra.Command {
 			/////////////////////////////////////////////////////////////////////
 			fmt.Println(rootNode.String())
 		},
-	}.ToCmd()
+	}.ToCobra()
 }
 
 func ValidAvailableModNameAndVersionArgsFunc(cfg *config.BaseConfig) func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {

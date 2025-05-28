@@ -10,7 +10,7 @@ import (
 )
 
 func validateConfig[CFG any](cfg *CFG) *CFG {
-	boa.Wrap{Params: cfg}.ToCmd()
+	boa.Cmd{Params: cfg}.ToCobra()
 	return cfg
 }
 

@@ -1,5 +1,8 @@
 # Bookeeper
 
+[![CI Status](https://github.com/GiGurra/bookeeper/actions/workflows/ci.yml/badge.svg)](https://github.com/GiGurra/bookeeper/actions/workflows/ci.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/GiGurra/bookeeper)](https://goreportcard.com/report/github.com/GiGurra/bookeeper)
+
 A basic CLI mod manager for Baldur's Gate 3 on Linux/Steam. This is just an experiment/prototype/weekend hack I wanted
 when I switched over from windows on my game machine.
 

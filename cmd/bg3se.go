@@ -22,28 +22,28 @@ func Bg3SeCmd() *cobra.Command {
 
 	cfg := &config.BaseConfig{}
 
-	return boa.Wrap{
+	return boa.Cmd{
 		Use:         "bg3se",
 		Short:       "operations related to bg3se (BG3 Script Extender)",
 		Params:      cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
-		SubCommands: []*cobra.Command{
+		SubCmds: []*cobra.Command{
 			Bg3SeStatusCmd(),
 			Bg3SeInstallCmd(),
 		},
-	}.ToCmd()
+	}.ToCobra()
 }
 
 func Bg3SeInstallCmd() *cobra.Command {
 
 	cfg := &Bg3SeCmdConfig{}
 
-	return boa.Wrap{
+	return boa.Cmd{
 		Use:         "install",
 		Short:       "download (from github) and install the latest version of bg3se",
 		Params:      cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
-		Run: func(cmd *cobra.Command, args []string) {
+		RunFunc: func(cmd *cobra.Command, args []string) {
 
 			//Norbyte/bg3se
 			fmt.Println("Checking for latest bg3se release at github.com/Norbyte/bg3se/releases/latest")
@@ -77,19 +77,19 @@ func Bg3SeInstallCmd() *cobra.Command {
 			//goland:noinspection GoPrintFunctions
 			fmt.Println(" WINEDLLOVERRIDES=\"DWrite.dll=n,b\" " + cmdStr)
 		},
-	}.ToCmd()
+	}.ToCobra()
 }
 
 func Bg3SeStatusCmd() *cobra.Command {
 
 	cfg := &Bg3SeCmdConfig{}
 
-	return boa.Wrap{
+	return boa.Cmd{
 		Use:         "status",
 		Short:       "show status of bg3se (BG3 Script Extender)",
 		Params:      cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
-		Run: func(cmd *cobra.Command, args []string) {
+		RunFunc: func(cmd *cobra.Command, args []string) {
 
 			bg3SeDllPath := config.Bg3SeDllPath(&cfg.Base)
 			bg3SeInstalled := config.ExistsFile(bg3SeDllPath)
@@ -109,5 +109,5 @@ func Bg3SeStatusCmd() *cobra.Command {
 			/////////////////////////////////////////////////////////////////////
 			fmt.Println(rootNode.String())
 		},
-	}.ToCmd()
+	}.ToCobra()
 }

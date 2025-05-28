@@ -15,12 +15,12 @@ func StatusCmd() *cobra.Command {
 
 	cfg := &config.BaseConfig{}
 
-	return boa.Wrap{
+	return boa.Cmd{
 		Use:         "status",
 		Short:       "prints full status (on 'everything')",
 		Params:      cfg,
 		ParamEnrich: boa.ParamEnricherDefault,
-		Run: func(cmd *cobra.Command, args []string) {
+		RunFunc: func(cmd *cobra.Command, args []string) {
 
 			bg3SeDllPath := config.Bg3SeDllPath(cfg)
 			bg3SeInstalled := config.ExistsFile(bg3SeDllPath)
@@ -87,5 +87,5 @@ func StatusCmd() *cobra.Command {
 			/////////////////////////////////////////////////////////////////////
 			fmt.Println(rootNode.String())
 		},
-	}.ToCmd()
+	}.ToCobra()
 }
