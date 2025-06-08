@@ -1,5 +1,7 @@
 github.com/GiGurra/boa v0.3.15 h1:JOkd8Op1ctvsvGjPem1ZE8Li2eXJ/Epg/mEiA+lcsDo=
 github.com/GiGurra/boa v0.3.15/go.mod h1:w/K5cXEblqdimBWb4oP2lB1XS8D3L7LYCdUy03EEkmM=
+github.com/GiGurra/boa v0.3.16 h1:JeqvSBTo7aPYy167DRZHKW+vlRqqyUBBzVhdp00UODw=
+github.com/GiGurra/boa v0.3.16/go.mod h1:w/K5cXEblqdimBWb4oP2lB1XS8D3L7LYCdUy03EEkmM=
 github.com/cpuguy83/go-md2man/v2 v2.0.6/go.mod h1:oOW0eioCTA6cOiMLiUPZOpcVxMig6NIQQ7OS05n1F4g=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
