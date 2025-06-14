@@ -7,7 +7,7 @@ toolchain go1.24.3
 require (
 	github.com/GiGurra/boa v0.3.15
 	github.com/google/go-cmp v0.7.0
-	github.com/samber/lo v1.50.0
+	github.com/samber/lo v1.51.0
 	github.com/spf13/cobra v1.9.1
 	github.com/xlab/treeprint v1.2.0
 )
