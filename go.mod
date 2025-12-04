@@ -8,7 +8,7 @@ require (
 	github.com/GiGurra/boa v0.3.32
 	github.com/google/go-cmp v0.7.0
 	github.com/samber/lo v1.52.0
-	github.com/spf13/cobra v1.10.1
+	github.com/spf13/cobra v1.10.2
 	github.com/xlab/treeprint v1.2.0
 )
 
