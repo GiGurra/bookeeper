@@ -1,0 +1,50 @@
+site_name: Bookeeper
+site_url: https://gigurra.github.io/bookeeper/
+site_description: CLI mod manager for Baldur's Gate 3 on Linux/Steam (prototype)
+repo_url: https://github.com/GiGurra/bookeeper
+repo_name: GiGurra/bookeeper
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: deep purple
+      accent: purple
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: deep purple
+      accent: purple
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.sections
+    - content.code.copy
+    - search.highlight
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - toc:
+      permalink: true
+  - tables
+
+nav:
+  - Home: index.md
+  - Guide:
+    - Installation: guide/installation.md
+    - Basic Usage: guide/usage.md
+    - Profiles: guide/profiles.md
+    - BG3 Script Extender: guide/bg3se.md
+    - Troubleshooting: guide/troubleshooting.md
+  - Reference:
+    - Commands: reference/commands.md
+    - Configuration: reference/configuration.md
+    - File Formats: reference/file-formats.md
